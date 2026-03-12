@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="et">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KAEVIKUDILEMMAD | COMMAND CENTER</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <div class="crt-overlay"></div>
     <div class="scanline"></div>
 
@@ -15,116 +15,150 @@
     <audio id="snd-paper" src="paper.mp3"></audio>
 
     <section id="home-screen">
-        <div class="trench-bg"></div>
-        <div class="home-ui">
-            <div class="top-secret-bar">CLASSIFIED // EYES ONLY // ESTONIAN DEFENCE FORCES</div>
-            <h1>KAEVIKU<br>DILEMMAD</h1>
-            
-            <div id="setup-area">
-                <div class="input-group">
-                    <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="15" autocomplete="off">
-                    <button type="button" onclick="addPlayer()" class="btn-military-add">
-                        <span class="btn-led"></span> REGISTREERI
-                    </button>
-                </div>
-                <div id="player-list"></div>
-                
-                <div class="mode-selector">
-                    <p class="setting-label">> VALI OPERATSIOONI TAKTIKA:</p>
-                    <div class="radio-group">
-                        <label class="custom-radio">
-                            <input type="radio" name="game-mode" value="locked" checked>
-                            <span class="radio-mark"></span> LINEAARNE (AUTO-SWITCH)
-                        </label>
-                        <label class="custom-radio">
-                            <input type="radio" name="game-mode" value="free">
-                            <span class="radio-mark"></span> VABA OPERATSIOONALA
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-massive" id="start-btn" onclick="startGame()" style="display: none;">ALUSTA MISSIOONI</button>
+      <div class="trench-bg"></div>
+      <div class="home-ui">
+        <div class="top-secret-bar">
+          CLASSIFIED // EYES ONLY // ESTONIAN DEFENCE FORCES
         </div>
+        <h1>KAEVIKU<br />DILEMMAD</h1>
+
+        <div id="setup-area">
+          <div class="input-group">
+            <input
+              type="text"
+              id="player-name"
+              placeholder="IDENTIFITSEERI SÕDUR..."
+              maxlength="15"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              onclick="addPlayer()"
+              class="btn-military-add"
+            >
+              <span class="btn-led"></span> REGISTREERI
+            </button>
+          </div>
+          <div id="player-list"></div>
+
+          <div class="mode-selector">
+            <p class="setting-label">> VALI OPERATSIOONI TAKTIKA:</p>
+            <div class="radio-group">
+              <label class="custom-radio">
+                <input type="radio" name="game-mode" value="locked" checked />
+                <span class="radio-mark"></span> LINEAARNE (AUTO-SWITCH)
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="game-mode" value="free" />
+                <span class="radio-mark"></span> VABA OPERATSIOONALA
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="btn-massive"
+          id="start-btn"
+          onclick="startGame()"
+          style="display: none"
+        >
+          ALUSTA MISSIOONI
+        </button>
+      </div>
     </section>
 
-    <main id="game-interface" style="display: none;">
-        <nav class="command-panel" id="navigation-bar">
-            <div class="panel-label">OPERATSIOONI JUHTPANEEL</div>
-            <div class="nav-btn-group">
-                <button onclick="changePhaseManual('dilemmad')" class="nav-toggle" id="btn-dilemmad">
-                    <span class="indicator"></span>
-                    <span class="label">I: DILEMMAD</span>
-                </button>
-                <button onclick="changePhaseManual('ryhmavaim')" class="nav-toggle" id="btn-ryhmavaim">
-                    <span class="indicator"></span>
-                    <span class="label">II: RÜHMAVAIM</span>
-                </button>
-                <button onclick="changePhaseManual('strateegia')" class="nav-toggle" id="btn-strateegia">
-                    <span class="indicator"></span>
-                    <span class="label">III: STRATEEGIA</span>
-                </button>
-            </div>
-        </nav>
-
-        <div class="tabletop">
-            <div id="folder" class="folder-closed" onclick="openFolder()">
-                <div class="folder-front">
-                    <div class="folder-tab">FILE_402_B</div>
-                    <div class="folder-cover-content">
-                        <div class="stamp-red">TOP SECRET</div>
-                        <h2>OPERATSIOONI TOIMIK</h2>
-                        <div class="seal-wax"></div>
-                        <p class="blink-text">[ VAJUTA TOIMIKU AVAMISEKS ]</p>
-                    </div>
-                </div>
-
-                <div class="folder-inside">
-                    <div class="paper-page">
-                        <div class="paper-coffee-stain"></div>
-                        <div class="confidential-watermark">CONFIDENTIAL</div>
-                        <div class="metal-clip"></div>
-
-                        <div class="page-grid">
-                            <div class="content-left">
-                                <div class="report-meta">
-                                    <span class="barcode">|||| ||| || |||||</span><br>
-                                    RAPORT #<span id="card-num">01</span> // KATEGOORIA: <span id="current-phase-name">---</span>
-                                </div>
-                                
-                                <div class="question-area">
-                                    <p id="task-text">Genereerin missiooni andmeid...</p>
-                                </div>
-                                
-                                <div class="voting-zone">
-                                    <p class="small-label">VÄLJAVÕTE: KES ON SÜÜDI / PARIM VASTUS?</p>
-                                    <div id="vote-btns-container"></div>
-                                </div>
-
-                                <button class="btn-confirm-heavy" onclick="nextCard(event)">
-                                    <span class="btn-inner">KINNITA JA ARHIVEERI</span>
-                                </button>
-                            </div>
-
-                            <div class="content-right">
-                                <div class="photo-box">
-                                    <img id="task-img" src="">
-                                    <div class="tape-piece"></div>
-                                    <div class="photo-grain"></div>
-                                </div>
-                                
-                                <div class="stat-box">
-                                    <div class="stat-header">ÜKSUSE TOIMIKUD (PTS)</div>
-                                    <div id="score-display"></div>
-                                    <div class="official-seal"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <main id="game-interface" style="display: none">
+      <nav class="command-panel" id="navigation-bar">
+        <div class="panel-label">OPERATSIOONI JUHTPANEEL</div>
+        <div class="nav-btn-group">
+          <button
+            onclick="changePhaseManual('dilemmad')"
+            class="nav-toggle"
+            id="btn-dilemmad"
+          >
+            <span class="indicator"></span>
+            <span class="label">I: DILEMMAD</span>
+          </button>
+          <button
+            onclick="changePhaseManual('ryhmavaim')"
+            class="nav-toggle"
+            id="btn-ryhmavaim"
+          >
+            <span class="indicator"></span>
+            <span class="label">II: RÜHMAVAIM</span>
+          </button>
+          <button
+            onclick="changePhaseManual('strateegia')"
+            class="nav-toggle"
+            id="btn-strateegia"
+          >
+            <span class="indicator"></span>
+            <span class="label">III: STRATEEGIA</span>
+          </button>
         </div>
+      </nav>
+
+      <div class="tabletop">
+        <div id="folder" class="folder-closed" onclick="openFolder()">
+          <div class="folder-front">
+            <div class="folder-tab">FILE_402_B</div>
+            <div class="folder-cover-content">
+              <div class="stamp-red">TOP SECRET</div>
+              <h2>OPERATSIOONI TOIMIK</h2>
+              <div class="seal-wax"></div>
+              <p class="blink-text">[ VAJUTA TOIMIKU AVAMISEKS ]</p>
+            </div>
+          </div>
+
+          <div class="folder-inside">
+            <div class="paper-page">
+              <div class="paper-coffee-stain"></div>
+              <div class="confidential-watermark">CONFIDENTIAL</div>
+              <div class="metal-clip"></div>
+
+              <div class="page-grid">
+                <div class="content-left">
+                  <div class="report-meta">
+                    <span class="barcode">|||| ||| || |||||</span><br />
+                    RAPORT #<span id="card-num">01</span> // KATEGOORIA:
+                    <span id="current-phase-name">---</span>
+                  </div>
+
+                  <div class="question-area">
+                    <p id="task-text">Genereerin missiooni andmeid...</p>
+                  </div>
+
+                  <div class="voting-zone">
+                    <p class="small-label">
+                      VÄLJAVÕTE: KES ON SÜÜDI / PARIM VASTUS?
+                    </p>
+                    <div id="vote-btns-container"></div>
+                  </div>
+
+                  <button class="btn-confirm-heavy" onclick="nextCard(event)">
+                    <span class="btn-inner">KINNITA JA ARHIVEERI</span>
+                  </button>
+                </div>
+
+                <div class="content-right">
+                  <div class="photo-box">
+                    <img id="task-img" src="" />
+                    <div class="tape-piece"></div>
+                    <div class="photo-grain"></div>
+                  </div>
+
+                  <div class="stat-box">
+                    <div class="stat-header">ÜKSUSE TOIMIKUD (PTS)</div>
+                    <div id="score-display"></div>
+                    <div class="official-seal"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
