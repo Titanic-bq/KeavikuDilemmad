@@ -17,9 +17,7 @@
     <section id="home-screen">
       <div class="trench-bg"></div>
       <div class="home-ui">
-        <div class="top-secret-bar">
-          CLASSIFIED // EYES ONLY // ESTONIAN DEFENCE FORCES
-        </div>
+        <div class="top-secret-bar">CLASSIFIED</div>
         <h1>KAEVIKU<br />DILEMMAD</h1>
 
         <div id="setup-area">
@@ -42,7 +40,7 @@
           <div id="player-list"></div>
 
           <div class="mode-selector">
-            <p class="setting-label">> VALI OPERATSIOONI TAKTIKA:</p>
+            <p class="setting-label">> VALI TAKTIKA:</p>
             <div class="radio-group">
               <label class="custom-radio">
                 <input type="radio" name="game-mode" value="locked" checked />
@@ -62,14 +60,14 @@
           onclick="startGame()"
           style="display: none"
         >
-          ALUSTA MISSIOONI
+          ALUSTA
         </button>
       </div>
     </section>
 
     <main id="game-interface" style="display: none">
       <nav class="command-panel" id="navigation-bar">
-        <div class="panel-label">OPERATSIOONI JUHTPANEEL</div>
+        <div class="panel-label">JUHTPANEEL</div>
         <div class="nav-btn-group">
           <button
             onclick="changePhaseManual('dilemmad')"
@@ -85,7 +83,7 @@
             id="btn-ryhmavaim"
           >
             <span class="indicator"></span>
-            <span class="label">II: RÜHMAVAIM</span>
+            <span class="label">II: STRATEEGIA</span>
           </button>
           <button
             onclick="changePhaseManual('strateegia')"
@@ -93,7 +91,7 @@
             id="btn-strateegia"
           >
             <span class="indicator"></span>
-            <span class="label">III: STRATEEGIA</span>
+            <span class="label">III: REAALSUS</span>
           </button>
         </div>
       </nav>
@@ -129,14 +127,12 @@
                   </div>
 
                   <div class="voting-zone">
-                    <p class="small-label">
-                      VÄLJAVÕTE: KES ON SÜÜDI / PARIM VASTUS?
-                    </p>
+                    <p class="small-label">KELLEL OLI PAREM ARGUMENT?</p>
                     <div id="vote-btns-container"></div>
                   </div>
 
                   <button class="btn-confirm-heavy" onclick="nextCard(event)">
-                    <span class="btn-inner">KINNITA JA ARHIVEERI</span>
+                    <span class="btn-inner">KINNITA </span>
                   </button>
                 </div>
 

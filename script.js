@@ -1,61 +1,66 @@
+/**
+ * KAEVIKUDRAAMA - Mängumootor v1.1
+ * Autor: Gemini (Adaptive AI Collaborator)
+ */
+
 const Generator = {
   usedWords: new Set(),
   vocab: {
     dilemmad: [
-      "olema see rühma loll, kes peab öise rünnaku ajal helendavat vesti kandma",
-      "sööma rühmavanema silme all tema viimase ja ainsa sooja toidupaki",
-      "kaotama oma relva luku täpselt 5 minutit enne suurt inspekteerimist",
-      "veetma terve talvise õppuse kummikutes, kuhu rühmakaaslane 'kogemata' kuses",
-      "olema ainus ellujääja rünnakus, aga pead kandma kõigi langenute varustust üksi tagasi",
-      "puhastama hambaharjaga välikäimlat, samal ajal kui teised lähevad linnaloale",
-      "magama kaevikus, mis on poolenisti täitunud külma lörtsi ja rühmakaaslase pisaratega",
-      "teatama rühmale, et tänu sinu näpoveale tühistati kõigi kolme kuu linnaload",
-      "kaevama endale kaevikut kivisesse pinda, kasutades ainult plastikust lusikat",
-      "asendama oma relva salve banaaniga ja lootma, et vaenlane ei märka",
+      "kanda öisel rünnakul helendavat neoonvesti, et olla 'nähtav juht'",
+      "süüa rühmavanema silme all ära tema viimane ja ainus soe toidupakk",
+      "kaotada oma relva lukk täpselt 5 minutit enne suurt inspekteerimist",
+      "veeta terve talvise õppuse kummikutes, kuhu rühmakaaslane 'kogemata' kuses",
+      "tassida üksi tagasi kogu rühma varustus, olles ise ainus 'ellujääja'",
+      "puhastada hambaharjaga välikäimlat, kuni teised lähevad linnaloale",
+      "magada kaevikus, mis on poolenisti täitunud lörtsi ja kaaslaste pisaratega",
+      "teatada rühmale, et sinu näpovea tõttu tühistati kõigi puhkused",
+      "kaevata endale kaevik paekivisse, kasutades ainult plastikust lusikat",
+      "asendada oma relva salv banaaniga ja loota, et keegi ei märka",
     ],
     asjad: [
-      "sinu kuulivest on tegelikult täidetud vana ajalehepaberiga",
-      "sinu ainus soojusallikas on märg tikk ja rühmakaaslase halb hingeõhk",
-      "avastad, et sinu salvedes on paukpadrunite asemel tühjad kestad",
+      "sinu kuulivest on täidetud vana ajalehepaberiga",
+      "sinu ainus soojusallikas on märg tikk ja lootusetus",
+      "sinu salvedes on paukpadrunite asemel tühjad kestad",
       "sinu automaat on nii roostes, et see on nüüd ametlikult külmrelv",
       "toidupakis on ainult üks kuivanud küpsis ja kiri 'Edu, sõdur!'",
-      "sinu märgades sokkides on arenenud uus ja agressiivne eluvorm",
-      "sinu kiiver katab silmad iga kord, kui sa hingad",
+      "sinu märgades sokkides on arenenud uus ja agressiivne tsivilisatsioon",
+      "sinu kiiver kukub silmadele iga kord, kui sa proovid sihtida",
     ],
     tegu_r: [
-      "suudaks miini peale astuda isegi siis, kui see on lipukestega tähistatud",
-      "hakkaks rünnaku ajal vaenlasega linnaloa tingimuste üle läbi rääkima",
-      "unustaks granaadi heitmisel splindi kätte ja viskaks granaadi asemel oma kella",
+      "astuks miini peale isegi siis, kui see on lipukestega tähistatud",
+      "hakkaks rünnaku ajal vaenlasega linnaloa tingimuste üle kauplema",
+      "viskaks granaadi asemel oma käekella ja jätaks splindi kätte",
       "jääks magama täpselt sel hetkel, kui rühmavanem küsib: 'Kes valvab?'",
-      "hakkaks kaevikus süüa tegema, kasutades kütuseks rühma ainsat kaarti",
-      "tulistaks kogemata rühma ainsa ellujäämispaki puruks",
-      "kaotaks oma püksid ära keset öist häiret ja jookseks rünnakule aluspesus",
-      "müüks rühma asukoha maha ühe sooja burgeri eest",
+      "hakkaks kaevikus lõket tegema, kasutades kütuseks rühma ainsat kaarti",
+      "laseks kogemata puruks rühma viimase ellujäämispaki",
+      "kaotaks öise häire ajal püksid ja jookseks rünnakule aluspesus",
+      "müüks rühma asukoha maha ühe sooja burgeri ja külma joogi eest",
     ],
     missioon: [
       "Vallutada tagasi üksuse välikäimla",
-      "Hävitada vaenlase kütuseauto",
-      "Toimetada salajane sõnum läbi rinde",
-      "Peatada pealetungiv tankikolonn",
-      "Evakueerida haavatud rühmavanem",
-      "Kaitsta rühma viimast kohvivaru",
-      "Hävitada vaenlase raadiomast",
+      "Hävitada vaenlase kütuseauto, kasutades ainult kive",
+      "Toimetada salajane armastuskiri läbi rindejoone",
+      "Peatada pealetungiv tankikolonn tühja rinnaga",
+      "Evakueerida haavatud rühmavanem, kes kaalub 120 kilo",
+      "Kaitsta rühma viimast ja ainsat kohvivaru",
+      "Hävitada vaenlase raadiomast ilma tööriistadeta",
     ],
     kriis: [
-      "kogu üksus on 48 tundi magamata ja hallutsinatsioonides",
-      "laskemoon on asendatud hernestega",
-      "vaenlane kasutab ründamiseks näljaseid karusid",
+      "kogu üksus on 48 tundi magamata ja näeb hallutsinatsioone",
+      "laskemoon on asendatud kuivatatud hernestega",
+      "vaenlane kasutab ründamiseks näljaseid pesukarusid",
       "teie asukoht reedeti helendavate saabaste tõttu",
       "side on maas ja rühmavanem nutab looteasendis",
       "olete ümber piiratud ja teil on jäänud ainult üks suitsupomm",
     ],
     vahend: [
       "rull teipi ja poolik märg küpsis",
-      "üksainus depressiivne treenitud orav",
+      "üksainus depressiivne ja treenitud orav",
       "kakskümmend liitrit hapuks läinud piima",
       "vana megafon ja nimekiri rühmavanema solvangutest",
-      "katkine sandaal ja pakk närimiskummi",
-      "papist tankimudelid ja palju enesekindlust",
+      "katkine sandaal ja pakk aegunud närimiskummi",
+      "papist tankimudelid ja liigselt enesekindlust",
     ],
   },
   images: [
@@ -70,6 +75,7 @@ let DB = {
   ryhmavaim: { cards: [] },
   strateegia: { cards: [] },
 };
+
 let players = [];
 let scores = {};
 let gameMode = "locked";
@@ -77,30 +83,42 @@ let currentTheme = "dilemmad";
 let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
 const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
+/**
+ * Valib unikaalse sõna sõnastikust. Kui sõnad otsas, tühjendab ajaloo.
+ */
 function getUniqueRand(key) {
   const list = Generator.vocab[key];
+  if (!list) return "ERROR";
+
   let available = list.filter((word) => !Generator.usedWords.has(word));
+
   if (available.length === 0) {
     list.forEach((word) => Generator.usedWords.delete(word));
     available = list;
   }
+
   const picked = available[Math.floor(Math.random() * available.length)];
   Generator.usedWords.add(picked);
   return picked;
 }
 
+/**
+ * Genereerib kõik kaardid sessiooni alguses.
+ */
 function generateSessionCards() {
   Generator.usedWords.clear();
   themeOrder.forEach((theme) => {
     DB[theme].cards = [];
     for (let i = 0; i < 20; i++) {
       let q = "";
-      if (theme === "dilemmad")
+      if (theme === "dilemmad") {
         q = `KAS SA EELISTAKSID PIGEM:\n> ${getUniqueRand("dilemmad")}\n\nVÕI SEDA, ET:\n> ${getUniqueRand("asjad")}?`;
-      else if (theme === "ryhmavaim")
+      } else if (theme === "ryhmavaim") {
         q = `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${getUniqueRand("tegu_r")}?`;
-      else
-        q = `MISS: ${getUniqueRand("missioon")}\nKRIIS: ${getUniqueRand("kriis")}\n\nABI: ${getUniqueRand("vahend")}?`;
+      } else {
+        q = `MISSIOON: ${getUniqueRand("missioon")}\nKRIIS: ${getUniqueRand("kriis")}\n\nABI: ${getUniqueRand("vahend")}`;
+      }
+
       DB[theme].cards.push({
         q: q,
         img: Generator.images[
@@ -111,8 +129,13 @@ function generateSessionCards() {
   });
 }
 
+/**
+ * Mängija lisamine
+ */
 function addPlayer() {
   const input = document.getElementById("player-name");
+  if (!input) return;
+
   const name = input.value.trim().toUpperCase();
   if (name && players.length < 10 && !players.includes(name)) {
     players.push(name);
@@ -125,19 +148,29 @@ function addPlayer() {
 
 function updatePlayerUI() {
   const list = document.getElementById("player-list");
-  list.innerHTML = players
-    .map((p) => `<span class="player-tag">${p}</span>`)
-    .join("");
-  document.getElementById("start-btn").style.display =
-    players.length >= 2 ? "inline-block" : "none";
+  if (list) {
+    list.innerHTML = players
+      .map((p) => `<span class="player-tag">${p}</span>`)
+      .join("");
+  }
+  const startBtn = document.getElementById("start-btn");
+  if (startBtn) {
+    startBtn.style.display = players.length >= 2 ? "inline-block" : "none";
+  }
 }
 
+/**
+ * Mängu käivitamine
+ */
 function startGame() {
   generateSessionCards();
-  gameMode = document.querySelector('input[name="game-mode"]:checked').value;
+  const modeInput = document.querySelector('input[name="game-mode"]:checked');
+  gameMode = modeInput ? modeInput.value : "locked";
+
   playSnd("snd-click");
   document.getElementById("home-screen").style.display = "none";
   document.getElementById("game-interface").style.display = "block";
+
   setupPhase("dilemmad");
   updateScoreDisplay();
   updateVoteButtons();
@@ -145,12 +178,17 @@ function startGame() {
 
 function setupPhase(key) {
   currentTheme = key;
-  document.getElementById("current-phase-name").innerText = key.toUpperCase();
+  const phaseTitle = document.getElementById("current-phase-name");
+  if (phaseTitle) phaseTitle.innerText = key.toUpperCase();
+
   document.querySelectorAll(".nav-toggle").forEach((b) => {
     b.classList.remove("active");
     b.style.pointerEvents = gameMode === "locked" ? "none" : "auto";
   });
-  document.getElementById("btn-" + key).classList.add("active");
+
+  const activeBtn = document.getElementById("btn-" + key);
+  if (activeBtn) activeBtn.classList.add("active");
+
   renderCard();
 }
 
@@ -174,61 +212,84 @@ function renderCard() {
   }
 }
 
+/**
+ * Kausta avamise animatsioon
+ */
 function openFolder() {
   const f = document.getElementById("folder");
-  if (f.classList.contains("folder-closed")) {
+  if (f && f.classList.contains("folder-closed")) {
     playSnd("snd-folder");
     f.classList.replace("folder-closed", "folder-open");
   }
 }
 
+/**
+ * Punktisüsteem
+ */
 function givePoint(player) {
-  scores[player]++;
-  playSnd("snd-click");
-  updateScoreDisplay();
+  if (scores.hasOwnProperty(player)) {
+    scores[player]++;
+    playSnd("snd-click");
+    updateScoreDisplay();
+  }
 }
 
 function updateScoreDisplay() {
   const container = document.getElementById("score-display");
-  container.innerHTML = players
-    .map(
-      (p) =>
-        `<div class="score-row"><span>${p}</span><span class="player-score-value">${scores[p]} PTS</span></div>`,
-    )
-    .join("");
+  if (container) {
+    container.innerHTML = players
+      .map(
+        (p) =>
+          `<div class="score-row"><span>${p}</span><span class="player-score-value">${scores[p]} PTS</span></div>`,
+      )
+      .join("");
+  }
 }
 
 function updateVoteButtons() {
   const container = document.getElementById("vote-btns-container");
-  container.innerHTML = players
-    .map(
-      (p) =>
-        `<button class="vote-btn" onclick="givePoint('${p}')">${p}</button>`,
-    )
-    .join("");
+  if (container) {
+    container.innerHTML = players
+      .map(
+        (p) =>
+          `<button class="vote-btn" onclick="givePoint('${p}')">${p}</button>`,
+      )
+      .join("");
+  }
 }
 
+/**
+ * Audio kontroll
+ */
 function playSnd(id) {
   const a = document.getElementById(id);
   if (a) {
     a.currentTime = 0;
-    a.play().catch((e) => {});
+    a.play().catch(() => {}); // Väldib vigu brauserites, mis blokivad autoplyad
   }
 }
 
+/**
+ * Järgmise kaardi loogika
+ */
 function nextCard(e) {
-  e.stopPropagation();
+  if (e) e.stopPropagation();
   playSnd("snd-paper");
+
   if (gameMode === "locked") {
+    // Liigub automaatselt järgmisesse faasi
     let nextIdx = (themeOrder.indexOf(currentTheme) + 1) % themeOrder.length;
     phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
+
     const f = document.getElementById("folder");
     f.classList.replace("folder-open", "folder-closed");
+
     setTimeout(() => {
       setupPhase(themeOrder[nextIdx]);
       f.classList.replace("folder-closed", "folder-open");
     }, 600);
   } else {
+    // Püsib samas faasis, lihtsalt järgmine kaart
     phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
     renderCard();
   }
