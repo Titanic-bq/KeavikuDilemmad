@@ -13,7 +13,7 @@ const db = firebase.database();
 
 let isHost = false, myName = "", gamePin = "", roomRef = null;
 let players = [], scores = {}, hasVotedThisRound = false;
-let phaseIndex = 0, cardCounter = 1;
+let phaseIndex = 0;
 const phases = ["DILEMMAD", "RÜHMAVAIM", "STRATEEGIA"];
 
 const Generator = {
@@ -36,8 +36,8 @@ function hostGame() {
     isHost = true;
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.set({ status: "waiting", currentQ: "OOTAME..." }).then(() => {
-        document.getElementById("status-msg").innerHTML = `PIN: <span class="blink-text">${gamePin}</span>`;
+    roomRef.set({ status: "waiting", currentQ: "VALMISTUN..." }).then(() => {
+        document.getElementById("status-msg").innerHTML = `PIN: <span class="blink-text" style="color:#0f4; font-size:2rem;">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
         listenForData();
     });
@@ -45,8 +45,8 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("NIMI!");
-    let inputPin = prompt("PIN:");
+    if (!myName) return alert("SÕDUR, NIMI!");
+    let inputPin = prompt("SISESTA PIN:");
     if (!inputPin) return;
     db.ref('rooms/' + inputPin).once('value', (snap) => {
         if (snap.exists()) {
@@ -85,52 +85,61 @@ function listenForData() {
 }
 
 function startGame() {
+    phaseIndex = 0;
     roomRef.update({ status: "started" });
-    nextCard();
+    renderCurrentPhase();
 }
 
-function nextCard() {
-    if (cardCounter > 5) {
-        if (phaseIndex < 2) {
-            phaseIndex++; cardCounter = 1;
-            document.querySelectorAll(".phase-step").forEach((el, idx) => {
-                el.classList.toggle("active", idx === phaseIndex);
-            });
-            document.getElementById("folder").classList.replace("folder-open", "folder-closed");
-        } else {
-            return showEndScreen();
-        }
-    }
-
+function renderCurrentPhase() {
     const currentPhase = phases[phaseIndex];
+    document.querySelectorAll(".phase-step").forEach((el, idx) => {
+        el.classList.toggle("active", idx === phaseIndex);
+    });
+
     document.getElementById("folder-title").innerHTML = "MISSIOON:<br>" + currentPhase;
     document.getElementById("page-title").innerText = currentPhase + " RAPORT";
 
-    let q = (currentPhase === "DILEMMAD") ? `EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?` :
-            (currentPhase === "RÜHMAVAIM") ? `KES TEIE HULGAST:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?` :
-            `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
+    let q = "";
+    if (phaseIndex === 0) {
+        q = `KAS EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?`;
+    } else if (phaseIndex === 1) {
+        q = `KES TEIE HULGAST:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
+    } else {
+        q = `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
+    }
 
     document.getElementById("task-text").innerText = q;
-    document.getElementById("task-img").src = Generator.images[cardCounter % 4];
-    document.getElementById("card-num").innerText = cardCounter.toString().padStart(2, "0");
-    document.getElementById("card-num-2").innerText = cardCounter;
+    document.getElementById("task-img").src = Generator.images[phaseIndex % Generator.images.length];
+    document.getElementById("card-num").innerText = (phaseIndex + 1).toString().padStart(2, "0");
+    document.getElementById("card-num-2").innerText = (phaseIndex + 1);
     
     if (isHost) roomRef.update({ currentQ: q });
-    cardCounter++;
+
+    const nextBtn = document.querySelector(".metal-btn-large");
+    nextBtn.innerText = (phaseIndex < 2) ? "JÄRGMINE ETAPP >>" : "VAATA LÕPPRAPORTIT";
+}
+
+function nextCard() {
+    if (phaseIndex < 2) {
+        phaseIndex++;
+        document.getElementById("folder").classList.replace("folder-open", "folder-closed");
+        setTimeout(renderCurrentPhase, 400);
+    } else {
+        showEndScreen();
+    }
 }
 
 function showEndScreen() {
     document.getElementById("game-content").style.display = "none";
     document.getElementById("end-screen-content").style.display = "block";
-    
     const sorted = Object.entries(scores).sort((a,b) => b[1].score - a[1].score);
-    const winner = sorted[0];
-    
-    document.getElementById("winner-box").innerHTML = `
-        <h2 style="color:var(--red);">VÕITJA: ${winner[0]}</h2>
-        <h3>TULEMUS: ${winner[1].score} PUNKTI</h3>
-    `;
-    document.getElementById("final-stats").innerHTML = sorted.map(p => `<div>${p[0]} - ${p[1].score} pts</div>`).join("");
+    if (sorted.length > 0) {
+        document.getElementById("winner-box").innerHTML = `
+            <h2 style="color:#bc0000; font-size: 2rem;">VÕITJA: ${sorted[0][0]}</h2>
+            <h3>SKOOR: ${sorted[0][1].score} PUNKTI</h3>
+        `;
+    }
+    document.getElementById("final-stats").innerHTML = sorted.map(p => `<div>${p[0]}: ${p[1].score} pts</div>`).join("");
 }
 
 function renderButtons() {

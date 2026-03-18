@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAEVIKUDILEMMAD V3 - OPERATIONAL</title>
+    <title>KAEVIKUDILEMMAD V3</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -18,7 +18,7 @@
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             <div class="btn-row">
-                <button onclick="hostGame()" class="metal-btn">LOO TOBA</button>
+                <button onclick="hostGame()" class="metal-btn">LOO TUBA</button>
                 <button onclick="joinGame()" class="metal-btn">LIITU</button>
             </div>
             <div id="status-msg"></div>
@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="folder-inside">
-                    <div class="paper-page" id="main-paper">
+                    <div class="paper-page">
                         <div class="confidential-watermark">CONFIDENTIAL</div>
                         
                         <div id="game-content" class="page-layout">
@@ -68,7 +68,7 @@
                                     <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                                 </div>
                                 <div class="question-area"><p id="task-text">Sünkroniseerin...</p></div>
-                                <button class="metal-btn-large" onclick="nextCard()">KINNITA / JÄRGMINE</button>
+                                <button class="metal-btn-large" onclick="nextCard()">JÄRGMINE ETAPP >></button>
                             </div>
                             <div class="content-right">
                                 <div class="photo-box">
@@ -84,10 +84,9 @@
 
                         <div id="end-screen-content" style="display:none; text-align:center; width:100%;">
                             <div class="stamp-final">MISSION ACCOMPLISHED</div>
-                            <h1>LÕPPRAPORT</h1>
                             <div id="winner-box"></div>
                             <div id="final-stats"></div>
-                            <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">TAGASI BAASI</button>
+                            <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">SULGE TOIMIK</button>
                         </div>
 
                         <div class="report-footer">AUTH: RÜHMAVANEM // KAEVIKUD-V3</div>
