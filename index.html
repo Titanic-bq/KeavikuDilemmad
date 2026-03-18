@@ -2,20 +2,19 @@
 <html lang="et">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAEVIKUDILEMMAD ONLINE</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div id="bg-home" class="global-bg active"></div>
-    <div id="bg-game" class="global-bg"></div>
     <div class="crt-overlay"></div>
+    <div id="bg-home" class="global-bg active"></div>
 
     <section id="home-screen">
         <div class="home-ui">
-            <div class="top-secret-bar">CLASSIFIED // ONLINE MODE</div>
+            <div class="top-secret-bar">CLASSIFIED // KV-734</div>
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             <div class="btn-row">
@@ -24,7 +23,7 @@
             </div>
             <div id="status-msg"></div>
             <div id="player-list"></div>
-            <button class="btn-massive blink-text" id="start-btn" onclick="startGame()" style="display:none;">ALUSTA MISSIOONI</button>
+            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive blink-text">ALUSTA MISSIOONI</button>
         </div>
     </section>
 
@@ -32,63 +31,49 @@
         <div class="mobile-header">
             <div id="controller-status">OOTA KÜSIMUST...</div>
         </div>
-        <div id="remote-vote-btns">
-            </div>
+        <div id="remote-vote-btns"></div>
     </section>
 
     <main id="game-interface" style="display:none">
-        <nav class="command-panel">
-            <div class="nav-btn-group">
-                <div id="current-phase-name">FAAS: ETTEVALMISTUS</div>
-                <button onclick="endGame()" class="btn-end-mission">LÕPETA</button>
-            </div>
-        </nav>
-        
         <div class="tabletop">
             <div id="folder" class="folder-closed" onclick="openFolder()">
                 <div class="folder-front">
-                    <div class="folder-tab">FILE_ONLINE</div>
+                    <div class="folder-tab">FILE_073</div>
                     <div class="folder-cover-content">
-                        <div class="stamp-red">LIVE FEED</div>
-                        <h2>DILEMMAD</h2>
-                        <p class="blink-text">[ VAJUTA AVAMISEKS ]</p>
+                        <div class="stamp-red">TOP SECRET</div>
+                        <h2>OPERATSIOON:<br>DILEMMAD</h2>
+                        <p class="blink-text">[ KLIKI AVAMISEKS ]</p>
                     </div>
                 </div>
-                
                 <div class="folder-inside">
                     <div class="paper-page">
                         <div class="confidential-watermark">CONFIDENTIAL</div>
-                        
                         <div class="page-layout">
                             <div class="content-left">
                                 <div class="report-header">
-                                    <div class="header-top"><span>OPERATIONAL REPORT</span><span>#<span id="card-num">01</span></span></div>
-                                    <h1>DILEMMA RAPORT</h1>
+                                    <div class="header-top"><span>REPORT #<span id="card-num">01</span></span></div>
+                                    <h1>DILEMMA ANALÜÜS</h1>
                                 </div>
-                                <div class="question-area"><p id="task-text">Ootame andmeid...</p></div>
-                                <button class="btn-confirm-heavy" onclick="nextCard()"><span class="btn-inner">KINNITA / JÄRGMINE</span></button>
+                                <div class="question-area"><p id="task-text">Valmistun...</p></div>
+                                <button class="btn-confirm-heavy" onclick="nextCard()">JÄRGMINE RAPORT</button>
                             </div>
-                            
                             <div class="content-right">
                                 <div class="photo-box">
                                     <img id="task-img" src="">
-                                    <div class="photo-caption">FOTO #<span id="card-num-2">01</span></div>
+                                    <div class="photo-caption">FOTO_ID: <span id="card-num-2">01</span></div>
                                 </div>
                                 <div class="stat-box">
-                                    <div class="section-title">SKOORID</div>
-                                    <div id="score-display">
-                                        </div>
+                                    <div class="section-title">ÜKSUSE SKOORID</div>
+                                    <div id="score-display"></div>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="report-footer">UNIT-ID: KAEVIKUD // AUTH: RÜHMAVANEM</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>
