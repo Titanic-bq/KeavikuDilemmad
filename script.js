@@ -11,15 +11,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let isHost = false;
-let myName = "";
-let gamePin = "";
-let roomRef = null;
-let players = [];
-let scores = {};
-let hasVotedThisRound = false;
+let isHost = false, myName = "", gamePin = "", roomRef = null;
+let players = [], scores = {}, hasVotedThisRound = false;
+let phaseIndex = 0, cardCounter = 1;
+const phases = ["DILEMMAD", "RÜHMAVAIM", "STRATEEGIA"];
 
-// 3 FAASI ANDMED
 const Generator = {
     vocab: {
         dilemmad: ["kanda neoonvesti rünnakul", "süüa rühmavanema toidupakk", "kaotada relva lukk", "kummikutesse kusemine", "välikäimla puhastamine hambaharjaga"],
@@ -36,16 +32,12 @@ const Generator = {
     ]
 };
 
-let phaseIndex = 0;
-const phases = ["DILEMMAD", "RÜHMAVAIM", "STRATEEGIA"];
-let cardCounter = 1;
-
 function hostGame() {
     isHost = true;
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.set({ status: "waiting", currentQ: "OOTAME ALGUST..." }).then(() => {
-        document.getElementById("status-msg").innerHTML = `PIN: <span style="color:#0f4; font-size:2.5rem;">${gamePin}</span>`;
+    roomRef.set({ status: "waiting", currentQ: "OOTAME..." }).then(() => {
+        document.getElementById("status-msg").innerHTML = `PIN: <span class="blink-text">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
         listenForData();
     });
@@ -53,13 +45,12 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("SÕDUR, NIMI!");
+    if (!myName) return alert("NIMI!");
     let inputPin = prompt("PIN:");
     if (!inputPin) return;
     db.ref('rooms/' + inputPin).once('value', (snap) => {
         if (snap.exists()) {
-            gamePin = inputPin;
-            roomRef = db.ref('rooms/' + gamePin);
+            gamePin = inputPin; roomRef = db.ref('rooms/' + gamePin);
             roomRef.child('players/' + myName).set({ score: 0 });
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("player-controller").style.display = "flex";
@@ -70,8 +61,7 @@ function joinGame() {
 
 function listenForData() {
     roomRef.child('players').on('value', (snap) => {
-        scores = snap.val() || {};
-        players = Object.keys(scores);
+        scores = snap.val() || {}; players = Object.keys(scores);
         updateScoreDisplay();
         const lobby = document.getElementById("player-list");
         if(lobby) lobby.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
@@ -91,7 +81,6 @@ function listenForData() {
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
         }
-        if (snap.val() === "ended") location.reload();
     });
 }
 
@@ -101,29 +90,28 @@ function startGame() {
 }
 
 function nextCard() {
-    // Iga 5 kaardi järel vahetame faasi
-    if (cardCounter % 6 === 0) {
-        phaseIndex = (phaseIndex + 1) % 3;
-        cardCounter = 1;
-        document.getElementById("folder").classList.replace("folder-open", "folder-closed");
+    if (cardCounter > 5) {
+        if (phaseIndex < 2) {
+            phaseIndex++; cardCounter = 1;
+            document.querySelectorAll(".phase-step").forEach((el, idx) => {
+                el.classList.toggle("active", idx === phaseIndex);
+            });
+            document.getElementById("folder").classList.replace("folder-open", "folder-closed");
+        } else {
+            return showEndScreen();
+        }
     }
 
     const currentPhase = phases[phaseIndex];
-    document.getElementById("current-phase-display").innerText = "FAAS: " + currentPhase;
-    document.getElementById("folder-title").innerHTML = "OPERATSIOON:<br>" + currentPhase;
+    document.getElementById("folder-title").innerHTML = "MISSIOON:<br>" + currentPhase;
     document.getElementById("page-title").innerText = currentPhase + " RAPORT";
 
-    let q = "";
-    if (currentPhase === "DILEMMAD") {
-        q = `KAS EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?`;
-    } else if (currentPhase === "RÜHMAVAIM") {
-        q = `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
-    } else {
-        q = `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}\n\nKUIDAS LAHENDATE?`;
-    }
+    let q = (currentPhase === "DILEMMAD") ? `EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?` :
+            (currentPhase === "RÜHMAVAIM") ? `KES TEIE HULGAST:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?` :
+            `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
 
     document.getElementById("task-text").innerText = q;
-    document.getElementById("task-img").src = Generator.images[Math.floor(Math.random()*4)];
+    document.getElementById("task-img").src = Generator.images[cardCounter % 4];
     document.getElementById("card-num").innerText = cardCounter.toString().padStart(2, "0");
     document.getElementById("card-num-2").innerText = cardCounter;
     
@@ -131,27 +119,40 @@ function nextCard() {
     cardCounter++;
 }
 
+function showEndScreen() {
+    document.getElementById("game-content").style.display = "none";
+    document.getElementById("end-screen-content").style.display = "block";
+    
+    const sorted = Object.entries(scores).sort((a,b) => b[1].score - a[1].score);
+    const winner = sorted[0];
+    
+    document.getElementById("winner-box").innerHTML = `
+        <h2 style="color:var(--red);">VÕITJA: ${winner[0]}</h2>
+        <h3>TULEMUS: ${winner[1].score} PUNKTI</h3>
+    `;
+    document.getElementById("final-stats").innerHTML = sorted.map(p => `<div>${p[0]} - ${p[1].score} pts</div>`).join("");
+}
+
 function renderButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container || hasVotedThisRound) return;
     container.innerHTML = players.filter(p => p !== myName).map(p => 
-        `<button class="vote-btn" onclick="vote('${p}')">${p}</button>`
+        `<button class="vote-btn-metal" onclick="vote('${p}')">${p}</button>`
     ).join("");
 }
 
 function vote(target) {
     hasVotedThisRound = true;
     roomRef.child('players/' + target + '/score').transaction(s => (s || 0) + 1);
-    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>VALIK TEHTUD!</div>";
+    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>VALIK SAADETUD</div>";
 }
 
 function updateScoreDisplay() {
     const display = document.getElementById("score-display");
     if (!display) return;
-    display.innerHTML = Object.entries(scores)
-        .sort((a,b) => b[1].score - a[1].score)
+    display.innerHTML = Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
         .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;font-size:0.8rem;color:#000;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
 }
 
 function openFolder() { document.getElementById("folder").classList.replace("folder-closed", "folder-open"); }
-function endGame() { roomRef.update({ status: "ended" }).then(() => roomRef.remove()); }
+function endGame() { if(confirm("ABORT MISSION?")) location.reload(); }

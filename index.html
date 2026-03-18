@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAEVIKUDILEMMAD V2</title>
+    <title>KAEVIKUDILEMMAD V3 - OPERATIONAL</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -13,17 +13,17 @@
     <div class="scanline"></div>
 
     <section id="home-screen">
-        <div class="home-ui">
-            <div class="top-secret-bar">CLASSIFIED // KV-073</div>
+        <div class="home-ui-metal">
+            <div class="top-secret-bar">CLASSIFIED // SECTION 7</div>
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             <div class="btn-row">
-                <button onclick="hostGame()" class="nav-toggle">TEE UUS MÄNG</button>
-                <button onclick="joinGame()" class="nav-toggle">LIITU MÄNGUGA</button>
+                <button onclick="hostGame()" class="metal-btn">LOO TOBA</button>
+                <button onclick="joinGame()" class="metal-btn">LIITU</button>
             </div>
             <div id="status-msg"></div>
             <div id="player-list"></div>
-            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive blink-text">ALUSTA MISSIOONI</button>
+            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red blink-text">ALUSTA OPERATSIOONI</button>
         </div>
     </section>
 
@@ -35,35 +35,40 @@
     </section>
 
     <main id="game-interface" style="display:none">
-        <nav class="command-panel">
-            <div class="nav-btn-group">
-                <div id="current-phase-display" class="blink-text">FAAS: DILEMMAD</div>
-                <button onclick="endGame()" class="btn-end-mission">LÕPETA MISSIOON</button>
+        <nav class="hotbar">
+            <div class="phase-track">
+                <div class="phase-step active" id="p0">DILEMMAD</div>
+                <div class="phase-sep">>></div>
+                <div class="phase-step" id="p1">RÜHMAVAIM</div>
+                <div class="phase-sep">>></div>
+                <div class="phase-step" id="p2">STRATEEGIA</div>
             </div>
+            <button onclick="endGame()" class="btn-abort">ABORT MISSION</button>
         </nav>
 
         <div class="tabletop">
             <div id="folder" class="folder-closed" onclick="openFolder()">
                 <div class="folder-front">
-                    <div class="folder-tab">FILE_CONFIDENTIAL</div>
+                    <div class="folder-tab">KV-073</div>
                     <div class="folder-cover-content">
                         <div class="stamp-red">TOP SECRET</div>
-                        <h2 id="folder-title">OPERATSIOON:<br>DILEMMAD</h2>
-                        <p class="blink-text">[ VAJUTA AVAMISEKS ]</p>
+                        <h2 id="folder-title">MISSIOON:<br>DILEMMAD</h2>
+                        <p class="blink-text">[ AVA TOIMIK ]</p>
                     </div>
                 </div>
 
                 <div class="folder-inside">
-                    <div class="paper-page">
+                    <div class="paper-page" id="main-paper">
                         <div class="confidential-watermark">CONFIDENTIAL</div>
-                        <div class="page-layout">
+                        
+                        <div id="game-content" class="page-layout">
                             <div class="content-left">
                                 <div class="report-header">
-                                    <div class="header-top"><span>OPERATIONAL REPORT</span><span>#<span id="card-num">01</span></span></div>
+                                    <div class="header-top"><span>REPORT #<span id="card-num">01</span></span><span>CLASS: DELTA</span></div>
                                     <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                                 </div>
-                                <div class="question-area"><p id="task-text">Valmistun...</p></div>
-                                <button class="btn-confirm-heavy" onclick="nextCard()">KINNITA / JÄRGMINE</button>
+                                <div class="question-area"><p id="task-text">Sünkroniseerin...</p></div>
+                                <button class="metal-btn-large" onclick="nextCard()">KINNITA / JÄRGMINE</button>
                             </div>
                             <div class="content-right">
                                 <div class="photo-box">
@@ -76,7 +81,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="report-footer">UNIT-ID: KAEVIKUD // AUTH: RÜHMAVANEM</div>
+
+                        <div id="end-screen-content" style="display:none; text-align:center; width:100%;">
+                            <div class="stamp-final">MISSION ACCOMPLISHED</div>
+                            <h1>LÕPPRAPORT</h1>
+                            <div id="winner-box"></div>
+                            <div id="final-stats"></div>
+                            <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">TAGASI BAASI</button>
+                        </div>
+
+                        <div class="report-footer">AUTH: RÜHMAVANEM // KAEVIKUD-V3</div>
                     </div>
                 </div>
             </div>
