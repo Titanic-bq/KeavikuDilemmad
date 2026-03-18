@@ -10,19 +10,26 @@
 </head>
 <body>
     <div class="crt-overlay"></div>
-
-    <section id="home-screen">
-        <div class="home-ui-metal">
+    <div class="noise-bg"></div> <section id="home-screen">
+        <div class="war-zone-bg"></div> <div class="home-ui-metal">
             <div class="top-secret-bar">CLASSIFIED // SECTION 7</div>
-            <h1>KAEVIKU<br>DILEMMAD</h1>
-            <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
+            <h1 class="glitch-text" data-text="KAEVIKUDILEMMAD">KAEVIKU<br>DILEMMAD</h1>
+            
+            <div class="input-target-wrapper">
+                <span class="target-corner tl"></span>
+                <span class="target-corner tr"></span>
+                <span class="target-corner bl"></span>
+                <span class="target-corner br"></span>
+                <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
+            </div>
+
             <div class="btn-row">
                 <button onclick="hostGame()" class="metal-btn">LOO TUBA</button>
                 <button onclick="joinGame()" class="metal-btn">LIITU</button>
             </div>
             <div id="status-msg"></div>
             <div id="player-list"></div>
-            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red">ALUSTA OPERATSIOONI</button>
+            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red blink-text">ALUSTA OPERATSIOONI</button>
         </div>
     </section>
 
@@ -41,6 +48,8 @@
         <div class="tabletop">
             <div id="folder" class="folder-open">
                 <div class="paper-page">
+                    <div class="confidential-watermark">CONFIDENTIAL</div>
+                    
                     <div id="game-content" class="page-layout">
                         <div class="content-left">
                             <div class="report-header">

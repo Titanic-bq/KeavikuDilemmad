@@ -20,8 +20,8 @@ const quotes = [
     "\"Ainult surnud on näinud sõja lõppu.\" – Platon",
     "\"Sõda ei otsusta, kellel on õigus, vaid ainult seda, kes jääb järele.\" – Bertrand Russell",
     "\"Kõik sõjapidamine põhineb petmisel.\" – Sun Tzu",
-    "\"Distsipliin on rünnaku hing.\" – George Washington",
-    "\"Julgus on hirm, mis on oma palveid lugenud.\" – Anonüümne"
+    "\"Rahu on see lühike hetk ajaloos, kui kõik laevad uusi salvi.\" – Anonüümne",
+    "\"Distsipliin on rünnaku hing.\" – George Washington"
 ];
 
 const Generator = {
@@ -37,10 +37,17 @@ const Generator = {
 
 function hostGame() {
     isHost = true;
+    myName = "HOST"; // Host on ka mängija
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.set({ status: "waiting", phaseIndex: 0, currentQ: "VALMISTUN..." }).then(() => {
-        document.getElementById("status-msg").innerHTML = `PIN: <span style="color:#0f4; font-size:2rem;">${gamePin}</span>`;
+    
+    roomRef.set({ 
+        status: "waiting", 
+        phaseIndex: 0, 
+        currentQ: "OOTAME ÜKSUSE KOGUNEMIST...",
+        players: { "HOST": { score: 0 } } 
+    }).then(() => {
+        document.getElementById("status-msg").innerHTML = `PIN: <span style="color:#0f4; font-size:2.5rem; font-weight:bold;">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
         listenForData();
     });
@@ -48,7 +55,7 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("SÕDUR, NIMI!");
+    if (!myName || myName === "HOST") return alert("SÕDUR, SISEND ON VIGANE!");
     let inputPin = prompt("SISESTA PIN:");
     if (!inputPin) return;
 
@@ -77,10 +84,14 @@ function listenForData() {
         players = Object.keys(scores);
         phaseIndex = data.phaseIndex || 0;
 
-        if (data.status === "started" || (data.status === "waiting" && myName !== "")) {
+        // Ooteala nimekiri
+        const pList = document.getElementById("player-list");
+        if(pList) pList.innerHTML = "ÜKSUS: " + players.map(p => `<span class="player-tag">${p}</span>`).join(" ");
+
+        if (data.status === "started") {
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
-            if (isHost && data.status === "started") {
+            if (isHost) {
                 document.getElementById("host-next-btn").style.display = "block";
                 document.getElementById("host-end-btn").style.display = "block";
             }
@@ -89,13 +100,14 @@ function listenForData() {
         if (data.currentQ) {
             const taskEl = document.getElementById("task-text");
             if (taskEl.innerText !== data.currentQ) {
-                hasVotedThisRound = false; // Reset hääletus uue küsimusega
+                hasVotedThisRound = false; 
             }
             taskEl.innerText = data.currentQ;
             document.getElementById("task-img").src = data.currentImg || "";
-            document.getElementById("page-title").innerText = "ETAPP: " + phases[phaseIndex];
+            document.getElementById("page-title").innerText = data.status === "waiting" ? "OOTEREŽIIM" : "ETAPP: " + phases[phaseIndex];
+            
             document.querySelectorAll(".phase-step").forEach((el, idx) => el.classList.toggle("active", idx === phaseIndex));
-            if (!isHost) renderButtons();
+            if (!isHost && data.status === "started") renderButtons();
         }
 
         if (data.status === "ended") showEndScreen(data.finalQuote);
@@ -130,7 +142,7 @@ function renderButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container) return;
     if (hasVotedThisRound) {
-        container.innerHTML = "<div class='voted-msg'>VALIK TEHTUD</div>";
+        container.innerHTML = "<div class='voted-msg'>VALIK SAADETUD</div>";
         return;
     }
     container.innerHTML = players.filter(p => p !== myName).map(p => 
@@ -148,7 +160,7 @@ function updateScoreDisplay() {
     const display = document.getElementById("score-display");
     if (!display) return;
     display.innerHTML = "<b>ÜKSUSE SKOORID:</b><br>" + Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;padding:2px 0;color:#000;font-size:0.8rem;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;font-size:0.8rem;color:#000;padding:2px 0;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
 }
 
 function terminateMission() {
