@@ -57,21 +57,33 @@ function hostGame() {
 function joinGame() {
     isHost = false;
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    let inputPin = prompt("SISESTA MÄNGU PIN-KOOD:"); // Küsime PIN-i Kahooti stiilis
     
-    if (!myName || !inputPin) return alert("Nimi ja PIN on kohustuslikud!");
-    
-    gamePin = inputPin;
-    roomRef = db.ref('rooms/' + gamePin);
+    if (!myName) return alert("SISESTA ENNE NIMI!");
 
-    // Kontrollime kas tuba on olemas
-    roomRef.once('value', (snap) => {
-        if (!snap.exists()) return alert("VALE PIN-KOOD!");
+    let inputPin = prompt("SISESTA MÄNGU PIN-KOOD:"); 
+    if (!inputPin) return;
 
-        roomRef.child('players/' + myName).set({ score: 0 });
-        document.getElementById("home-screen").style.display = "none";
-        document.getElementById("player-controller").style.display = "block";
-        listenForData();
+    gamePin = inputPin.trim();
+    // Viitame konkreetsele toale
+    const checkRoomRef = db.ref('rooms/' + gamePin);
+
+    // Kontrollime, kas see PIN üldse eksisteerib andmebaasis
+    checkRoomRef.once('value', (snap) => {
+        if (snap.exists()) {
+            // Kui tuba olemas, määrame globaalse roomRef-i
+            roomRef = db.ref('rooms/' + gamePin);
+            
+            // Lisame mängija
+            roomRef.child('players/' + myName).set({ 
+                score: 0 
+            }).then(() => {
+                document.getElementById("home-screen").style.display = "none";
+                document.getElementById("player-controller").style.display = "block";
+                listenForData();
+            });
+        } else {
+            alert("VALE PIN-KOOD! Kontrolli Host-i ekraanilt.");
+        }
     });
 }
 
