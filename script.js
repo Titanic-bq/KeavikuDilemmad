@@ -16,6 +16,14 @@ let players = [], scores = {}, hasVotedThisRound = false;
 let phaseIndex = 0;
 const phases = ["DILEMMAD", "RÜHMAVAIM", "STRATEEGIA"];
 
+const quotes = [
+    "\"Ainult surnud on näinud sõja lõppu.\" – Platon",
+    "\"Sõda ei otsusta, kellel on õigus, vaid ainult seda, kes jääb järele.\" – Bertrand Russell",
+    "\"Kõik sõjapidamine põhineb petmisel.\" – Sun Tzu",
+    "\"Distsipliin on rünnaku hing.\" – George Washington",
+    "\"Julgus on hirm, mis on oma palveid lugenud.\" – Anonüümne"
+];
+
 const Generator = {
     vocab: {
         dilemmad: ["kanda neoonvesti rünnakul", "süüa rühmavanema toidupakk", "kaotada relva lukk", "kummikutesse kusemine", "välikäimla puhastamine hambaharjaga"],
@@ -31,7 +39,7 @@ function hostGame() {
     isHost = true;
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.set({ status: "waiting", phaseIndex: 0 }).then(() => {
+    roomRef.set({ status: "waiting", phaseIndex: 0, currentQ: "VALMISTUN..." }).then(() => {
         document.getElementById("status-msg").innerHTML = `PIN: <span style="color:#0f4; font-size:2rem;">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
         listenForData();
@@ -40,17 +48,24 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("NIMI!");
-    let inputPin = prompt("PIN:");
+    if (!myName) return alert("SÕDUR, NIMI!");
+    let inputPin = prompt("SISESTA PIN:");
     if (!inputPin) return;
+
     db.ref('rooms/' + inputPin).once('value', (snap) => {
         if (snap.exists()) {
-            gamePin = inputPin; roomRef = db.ref('rooms/' + gamePin);
+            gamePin = inputPin;
+            roomRef = db.ref('rooms/' + gamePin);
             roomRef.child('players/' + myName).set({ score: 0 });
+            
+            // LÜLITA KOHE ÜMBER
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
+            
             listenForData();
-        } else alert("VALE PIN!");
+        } else {
+            alert("VALE PIN!");
+        }
     });
 }
 
@@ -62,24 +77,28 @@ function listenForData() {
         players = Object.keys(scores);
         phaseIndex = data.phaseIndex || 0;
 
-        if (data.status === "started") {
+        if (data.status === "started" || (data.status === "waiting" && myName !== "")) {
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
-            if (isHost) {
+            if (isHost && data.status === "started") {
                 document.getElementById("host-next-btn").style.display = "block";
                 document.getElementById("host-end-btn").style.display = "block";
             }
         }
 
         if (data.currentQ) {
-            document.getElementById("task-text").innerText = data.currentQ;
+            const taskEl = document.getElementById("task-text");
+            if (taskEl.innerText !== data.currentQ) {
+                hasVotedThisRound = false; // Reset hääletus uue küsimusega
+            }
+            taskEl.innerText = data.currentQ;
             document.getElementById("task-img").src = data.currentImg || "";
             document.getElementById("page-title").innerText = "ETAPP: " + phases[phaseIndex];
             document.querySelectorAll(".phase-step").forEach((el, idx) => el.classList.toggle("active", idx === phaseIndex));
-            if (!isHost) renderButtons(data.lastUpdate);
+            if (!isHost) renderButtons();
         }
 
-        if (data.status === "ended") showEndScreen();
+        if (data.status === "ended") showEndScreen(data.finalQuote);
         updateScoreDisplay();
     });
 }
@@ -97,10 +116,8 @@ function nextCard() {
         status: "started", 
         currentQ: q, 
         currentImg: img,
-        phaseIndex: nextPhase,
-        lastUpdate: Date.now()
+        phaseIndex: nextPhase
     });
-    hasVotedThisRound = false;
 }
 
 function generateQuestion(p) {
@@ -109,7 +126,7 @@ function generateQuestion(p) {
     return `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
 }
 
-function renderButtons(time) {
+function renderButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container) return;
     if (hasVotedThisRound) {
@@ -131,21 +148,23 @@ function updateScoreDisplay() {
     const display = document.getElementById("score-display");
     if (!display) return;
     display.innerHTML = "<b>ÜKSUSE SKOORID:</b><br>" + Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;padding:2px 0;color:#000;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;padding:2px 0;color:#000;font-size:0.8rem;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
 }
 
 function terminateMission() {
-    if (confirm("LÕPETAME OPERATSIOONI?")) roomRef.update({ status: "ended" });
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    roomRef.update({ status: "ended", finalQuote: randomQuote });
 }
 
-function showEndScreen() {
+function showEndScreen(quote) {
     document.getElementById("game-content").style.display = "none";
     document.getElementById("end-screen-content").style.display = "block";
+    if (quote) document.getElementById("war-quote").innerText = quote;
     const sorted = Object.entries(scores).sort((a,b) => b[1].score - a[1].score);
     if (sorted.length > 0) {
         document.getElementById("winner-box").innerHTML = `
-            <h1 style="color:#bc0000; font-size: 2.5rem;">VÕITJA: ${sorted[0][0]}</h1>
-            <h2 style="color:#000;">PUNKTID: ${sorted[0][1].score}</h2>
+            <h1 style="color:#bc0000; font-size: 2.2rem;">TOP SOLDIER: ${sorted[0][0]}</h1>
+            <h2 style="color:#000;">${sorted[0][1].score} INFLUENCE POINTS</h2>
         `;
     }
 }
