@@ -10,10 +10,21 @@ const firebaseConfig = {
     measurementId: "G-BWS6MQSYNK"
 };
 
+// Algatame rakenduse
 firebase.initializeApp(firebaseConfig);
+
+// PARANDUS 1: Õige süntaks on firebase.database().ref(), mitte firebase.ref()
 const db = firebase.database();
-// SEE RIDA OLI PUUDU:
-const roomRef = firebase.ref(db, 'session_active'); 
+const roomRef = db.ref('session_active'); 
+
+// PARANDUS 2: Muutujad peavad olema defineeritud ENNE funktsioone
+let isHost = false;
+let myName = "";
+let players = []; 
+let scores = {}; 
+let currentTheme = "dilemmad";
+let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
+const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
 // --- 2. GENERATOR JA ANDMED ---
 const Generator = {
@@ -32,14 +43,8 @@ const Generator = {
 };
 
 let DB = { dilemmad: { cards: [] }, ryhmavaim: { cards: [] }, strateegia: { cards: [] } };
-let players = []; 
-let scores = {}; 
-let currentTheme = "dilemmad";
-let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
-let isHost = false;
-let myName = "";
-const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
+// NÜÜD TULEVAD FUNKTSIOONID (hostGame, joinGame jne)...
 // --- 3. ONLINE LIITUMISE FUNKTSIOONID ---
 function hostGame() {
     isHost = true;
