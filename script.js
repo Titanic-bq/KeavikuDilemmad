@@ -42,49 +42,64 @@ const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 // --- 3. KAHOOT-STYLE JOIN & HOST ---
 function hostGame() {
     isHost = true;
-    gamePin = Math.floor(1000 + Math.random() * 9000).toString(); // Genereerib 4-kohalise PIN-i
+    // Genereerime PIN-i
+    gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     myName = "HOST";
     
+    // Loome viite konkreetsele toale
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.remove(); // Puhastame vana toa kui see eksisteeris
 
-    document.getElementById("status-msg").innerHTML = `MÄNGU PIN: <span style="font-size:2rem; color:#0f4;">${gamePin}</span>`;
-    document.getElementById("start-btn").style.display = "inline-block";
-    
-    listenForData();
+    // KIRJUTAME ANDMED ANDMEBAASI (et see PIN eksisteeriks)
+    roomRef.set({
+        status: "waiting",
+        createdAt: Date.now(),
+        currentQ: "OOTAME ALGUST..."
+    }).then(() => {
+        console.log("Tuba loodud PIN-iga:", gamePin);
+        document.getElementById("status-msg").innerHTML = `MÄNGU PIN: <span style="font-size:2.5rem; color:#0f4; font-weight:bold;">${gamePin}</span>`;
+        document.getElementById("start-btn").style.display = "inline-block";
+        listenForData();
+    }).catch(err => {
+        console.error("Viga toa loomisel:", err);
+        alert("FIREBASE VIGA: Kontrolli 'Rules' vahelehte Firebase-is!");
+    });
 }
 
 function joinGame() {
     isHost = false;
     myName = document.getElementById("player-name").value.trim().toUpperCase();
     
-    if (!myName) return alert("SISESTA ENNE NIMI!");
+    if (!myName) return alert("SISESTA NIMI!");
 
-    let inputPin = prompt("SISESTA MÄNGU PIN-KOOD:"); 
+    let inputPin = prompt("SISESTA 4-KOHALINE PIN:");
     if (!inputPin) return;
 
     gamePin = inputPin.trim();
-    // Viitame konkreetsele toale
-    const checkRoomRef = db.ref('rooms/' + gamePin);
+    console.log("Proovin liituda PIN-iga:", gamePin);
 
-    // Kontrollime, kas see PIN üldse eksisteerib andmebaasis
-    checkRoomRef.once('value', (snap) => {
-        if (snap.exists()) {
-            // Kui tuba olemas, määrame globaalse roomRef-i
-            roomRef = db.ref('rooms/' + gamePin);
-            
-            // Lisame mängija
-            roomRef.child('players/' + myName).set({ 
-                score: 0 
-            }).then(() => {
-                document.getElementById("home-screen").style.display = "none";
-                document.getElementById("player-controller").style.display = "block";
-                listenForData();
-            });
-        } else {
-            alert("VALE PIN-KOOD! Kontrolli Host-i ekraanilt.");
-        }
-    });
+    // Kontrollime otse seda PIN-i kausta
+    db.ref('rooms/' + gamePin).once('value')
+        .then((snap) => {
+            if (snap.exists()) {
+                console.log("PIN leitud! Liitun...");
+                roomRef = db.ref('rooms/' + gamePin);
+                
+                // Lisame mängija
+                roomRef.child('players/' + myName).set({ score: 0 })
+                    .then(() => {
+                        document.getElementById("home-screen").style.display = "none";
+                        document.getElementById("player-controller").style.display = "block";
+                        listenForData();
+                    });
+            } else {
+                console.log("Sellist PIN-i ei leitud andmebaasist.");
+                alert("VALE PIN-KOOD! Kas Host vajutas 'Tee uus mäng'?");
+            }
+        })
+        .catch(err => {
+            console.error("Viga liitumisel:", err);
+            alert("Ühenduse viga!");
+        });
 }
 
 // --- 4. SÜNKROONIMINE ---
