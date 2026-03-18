@@ -1,3 +1,18 @@
+// --- 1. FIREBASE CONFIG (ASENDA SEE OMA KOODIGA!) ---
+
+ const firebaseConfig = {
+    apiKey: "AIzaSyAXGJ5lGVFCKa0JO6ga6KuOy51xPbMdzlY",
+    authDomain: "kaevikudilemmad.firebaseapp.com",
+    databaseURL: "https://kaevikudilemmad-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "kaevikudilemmad",
+    storageBucket: "kaevikudilemmad.firebasestorage.app",
+    messagingSenderId: "292604369801",
+    appId: "1:292604369801:web:425c7d17c97843ddbb5f58",
+    measurementId: "G-BWS6MQSYNK"
+  };
+  firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// --- 2. GENERATOR JA ANDMED ---
 const Generator = {
     vocab: {
         dilemmad: ["kanda neoonvesti rünnakul", "süüa rühmavanema toidupakk", "kaotada relva lukk", "kummikutesse kusemine", "välikäimla puhastamine hambaharjaga"],
@@ -18,41 +33,121 @@ let players = [];
 let scores = {}; 
 let currentTheme = "dilemmad";
 let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
-let votesThisRound = 0; 
+let isHost = false;
+let myName = "";
 const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
-function playSnd(type) { console.log("SND: " + type); }
+// --- 3. ONLINE LIITUMISE FUNKTSIOONID ---
+function hostGame() {
+    isHost = true;
+    myName = document.getElementById("player-name").value.trim().toUpperCase() || "HOST";
+    document.getElementById("status-msg").innerText = "HOST REŽIIM: OOTAN ÜKSUST...";
+    document.getElementById("start-btn").style.display = "inline-block";
+    
+    roomRef.remove(); // Puhasta vana mäng
+    listenForData();
+}
 
-// NAVIGATSIOON
-function openManual() {
+function joinGame() {
+    isHost = false;
+    myName = document.getElementById("player-name").value.trim().toUpperCase();
+    if (!myName) return alert("Sisesta nimi!");
+
+    document.getElementById("status-msg").innerText = "LIITUMINE...";
+    
+    // Lisa mängija andmebaasi
+    firebase.ref(db, 'session_active/players/' + myName).set({
+        score: 0
+    });
+
     document.getElementById("home-screen").style.display = "none";
-    document.getElementById("manual-screen").style.display = "flex";
+    document.getElementById("player-controller").style.display = "block";
+    
+    listenForData();
 }
 
-function closeManual() {
-    document.getElementById("manual-screen").style.display = "none";
-    document.getElementById("home-screen").style.display = "block";
+// --- 4. ANDMETE SÜNKROONIMINE ---
+function listenForData() {
+    // Kuula mängijaid ja skoore
+    firebase.ref(db, 'session_active/players').on('value', (snap) => {
+        const data = snap.val() || {};
+        players = Object.keys(data);
+        scores = data; // Firebase objekt sisaldab skoore
+
+        // Uuenda lobby nimekirja
+        const lobbyList = document.getElementById("player-list");
+        if(lobbyList) lobbyList.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
+
+        // Uuenda skoore ekraanil
+        updateScoreDisplay();
+
+        // Kui on mängija, kuva hääletusnupud
+        if (!isHost) renderRemoteButtons();
+    });
+
+    // Kuula mängu seisundit (kas host alustas mängu)
+    firebase.ref(db, 'session_active/status').on('value', (snap) => {
+        if (snap.val() === "started" && !isHost) {
+            document.getElementById("controller-status").innerText = "VALI SIHTMÄRK:";
+        }
+        if (snap.val() === "ended") location.reload();
+    });
+
+    // Kuula küsimusi (et mängija näeks ka, mille üle hääletatakse)
+    firebase.ref(db, 'session_active/currentQ').on('value', (snap) => {
+        if (!isHost && snap.val()) {
+            document.getElementById("controller-status").innerText = snap.val();
+        }
+    });
 }
 
-function getRand(key) { return Generator.vocab[key][Math.floor(Math.random() * Generator.vocab[key].length)]; }
+// --- 5. MÄNGU JUHTIMINE ---
+function startGame() {
+    generateSessionCards();
+    roomRef.update({ status: "started" });
+    
+    document.getElementById("bg-home").classList.remove("active");
+    document.getElementById("bg-game").classList.add("active");
+    document.getElementById("home-screen").style.display = "none";
+    document.getElementById("game-interface").style.display = "block";
+    setupPhase("dilemmad");
+}
 
-function addPlayer() {
-    const input = document.getElementById("player-name");
-    const name = input.value.trim().toUpperCase();
-    if (name && players.length < 10 && !players.includes(name)) {
-        players.push(name); 
-        scores[name] = 0; 
-        input.value = "";
-        document.getElementById("player-list").innerHTML = players.map(p => 
-            `<span style="border:1px solid var(--accent); padding:2px 8px; margin:4px; display:inline-block; font-size:0.75rem;">${p}</span>`
-        ).join("");
-        if (players.length >= 2) document.getElementById("start-btn").style.display = "inline-block";
+function renderCard() {
+    const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
+    document.getElementById("task-text").innerText = card.q;
+    document.getElementById("task-img").src = card.img;
+    document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
+    
+    // Saada küsimus andmebaasi, et mängijad näeksid seda telefonis
+    if (isHost) {
+        firebase.ref(db, 'session_active/currentQ').set(card.q);
     }
 }
 
-function hostGame() { addPlayer(); document.getElementById("status-msg").innerText = "HOST REŽIIM: AKTIVEERITUD"; }
-function joinGame() { addPlayer(); document.getElementById("status-msg").innerText = "SÕDUR: LIITUNUD"; }
+// --- 6. HÄÄLETAMINE ---
+function renderRemoteButtons() {
+    const container = document.getElementById("remote-vote-btns");
+    if (!container) return;
+    // Mängija ei saa hääletada iseenda poolt
+    container.innerHTML = players
+        .filter(p => p !== myName)
+        .map(p => `<button class="vote-btn" onclick="givePointOnline('${p}')">${p}</button>`)
+        .join("");
+}
 
+function givePointOnline(targetPlayer) {
+    // Kasutame Firebase Transactioni, et punktid kaduma ei läheks
+    firebase.ref(db, 'session_active/players/' + targetPlayer + '/score').transaction((currentScore) => {
+        return (currentScore || 0) + 1;
+    });
+    
+    // Tagasiside mängijale
+    document.getElementById("remote-vote-btns").innerHTML = "<p style='color:var(--accent)'>HÄÄL SALVESTATUD!</p>";
+    setTimeout(renderRemoteButtons, 2000);
+}
+
+// --- 7. ABIFUNKTSIOONID (Sinu originaalidest) ---
 function generateSessionCards() {
     themeOrder.forEach(theme => {
         DB[theme].cards = [];
@@ -65,14 +160,7 @@ function generateSessionCards() {
     });
 }
 
-function startGame() {
-    generateSessionCards();
-    document.getElementById("bg-home").classList.remove("active");
-    document.getElementById("bg-game").classList.add("active");
-    document.getElementById("home-screen").style.display = "none";
-    document.getElementById("game-interface").style.display = "block";
-    setupPhase("dilemmad");
-}
+function getRand(key) { return Generator.vocab[key][Math.floor(Math.random() * Generator.vocab[key].length)]; }
 
 function setupPhase(key) {
     currentTheme = key;
@@ -80,41 +168,12 @@ function setupPhase(key) {
     renderCard();
 }
 
-function renderCard() {
-    votesThisRound = 0;
-    const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
-    document.getElementById("task-text").innerText = card.q;
-    document.getElementById("task-img").src = card.img;
-    document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
-    document.getElementById("current-date").innerText = new Date().toLocaleDateString('et-EE');
-    
-    updateVoteButtons();
-    updateScoreDisplay();
-}
-
-function updateVoteButtons() {
-    document.getElementById("vote-btns-container").innerHTML = `
-        <div style="font-size:0.6rem; color:#666; margin-bottom:5px; text-transform:uppercase;">Hääli ootel: ${players.length - votesThisRound}</div>
-        ${players.map(p => `<button class="vote-btn" onclick="givePoint('${p}')">${p}</button>`).join("")}
-    `;
-}
-
-function givePoint(p) {
-    if (votesThisRound < players.length) {
-        scores[p]++; 
-        votesThisRound++; 
-        updateScoreDisplay(); 
-        updateVoteButtons();
-        if (votesThisRound >= players.length) {
-            document.querySelectorAll(".vote-btn").forEach(b => b.style.opacity = "0.3");
-        }
-    }
-}
-
 function updateScoreDisplay() {
-    document.getElementById("score-display").innerHTML = Object.entries(scores)
-        .sort((a,b) => b[1] - a[1])
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #bbb;padding:2px 0;"><span>${p[0]}</span><span>${p[1]} PTS</span></div>`)
+    const display = document.getElementById("score-display");
+    if (!display) return;
+    display.innerHTML = Object.entries(scores)
+        .sort((a,b) => b[1].score - a[1].score)
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #bbb;padding:2px 0;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`)
         .join("");
 }
 
@@ -131,21 +190,22 @@ function nextCard(e) {
 
 function openFolder() {
     const f = document.getElementById("folder");
-    if (f.classList.contains("folder-closed")) f.classList.replace("folder-closed", "folder-open");
+    if (f && f.classList.contains("folder-closed")) f.classList.replace("folder-closed", "folder-open");
 }
 
 function endGame() {
+    roomRef.update({ status: "ended" });
     document.getElementById("bg-game").classList.remove("active");
     document.getElementById("bg-final").classList.add("active");
     document.getElementById("game-interface").style.display = "none";
     document.getElementById("debrief-screen").style.display = "flex";
     
-    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const sorted = Object.entries(scores).sort((a, b) => b[1].score - a[1].score);
     document.getElementById("winner-announcement").innerHTML = `
         <h1 style="color:var(--red); font-size:2rem; text-align:center;">VÕITJA: ${sorted[0][0]}</h1>
     `;
     document.getElementById("final-leaderboard").innerHTML = sorted
-        .map(p => `<div style="display:flex;justify-content:space-between;padding:5px;"><span>${p[0]}</span><span>${p[1]} PTS</span></div>`)
+        .map(p => `<div style="display:flex;justify-content:space-between;padding:5px;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`)
         .join("");
 }
 
@@ -153,5 +213,3 @@ function openFinalFolder() {
     const f = document.getElementById("final-folder");
     if (f) f.classList.replace("folder-closed", "folder-open");
 }
-
-document.getElementById("player-name").addEventListener("keypress", (e) => { if (e.key === "Enter") addPlayer(); });

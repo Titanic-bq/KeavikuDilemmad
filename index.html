@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="et">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KAEVIKUDILEMMAD - Operatiivjuhtimine</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAEVIKUDILEMMAD ONLINE</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
@@ -13,107 +13,62 @@
     <div id="bg-game" class="global-bg"></div>
     <div id="bg-final" class="global-bg"></div>
     <div class="crt-overlay"></div>
-    <div class="scanline"></div>
 
     <section id="home-screen">
         <div class="home-ui">
+            <div class="top-secret-bar">CLASSIFIED // ONLINE MODE</div>
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <div id="setup-area">
-                <input type="text" id="player-name" placeholder="SISENDA KOODNIMI..." maxlength="12" />
-                <div style="margin-top:10px; display: flex; flex-direction: column; gap: 5px;">
-                    <div style="display: flex; gap: 5px;">
-                        <button onclick="hostGame()" class="nav-toggle" style="flex:2">HOST</button>
-                        <button onclick="joinGame()" class="nav-toggle" style="flex:2">LIITU</button>
-                        <button onclick="openManual()" class="nav-toggle btn-help" title="Kasutusjuhend">?</button>
-                    </div>
+                <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
+                <div style="margin-top:20px; display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="hostGame()" class="nav-toggle">TEE UUS MÄNG</button>
+                    <button onclick="joinGame()" class="nav-toggle">LIITU MÄNGUGA</button>
                 </div>
-                <div id="status-msg" style="margin-top:15px; color: var(--accent); min-height: 1.2rem; font-size: 0.8rem;"></div>
-                <div id="player-list"></div>
+                <div id="status-msg" style="margin-top:15px; color: #0f4; font-size: 0.8rem;"></div>
+                <div id="player-list-lobby" style="margin-top:10px;"></div>
             </div>
             <button class="btn-massive" id="start-btn" onclick="startGame()" style="display:none; margin-top:20px;">ALUSTA MISSIOONI</button>
         </div>
     </section>
 
-    <section id="manual-screen" style="display:none;">
-        <div class="tabletop">
-            <div class="paper-page manual-page">
-                <div class="confidential-watermark">JUHEND</div>
-                <h2 style="text-align: center; color: var(--red); margin-top: 0;">KASUTUSJUHEND</h2>
-                <hr>
-                <div class="manual-content">
-                    <h3>1. ETTEVALMISTUS</h3>
-                    <p>Sisesta nimi ja vali <strong>HOST</strong> (põhiekraan) või <strong>LIITU</strong> (mängija seade). Alustamiseks on vaja vähemalt 2 võitlejat.</p>
-                    
-                    <h3>2. MÄNGU KÄIK</h3>
-                    <p>Mäng roteerub kolme faasi vahel: <strong>DILEMMAD</strong> (rasked valikud), <strong>RÜHMAVAIM</strong> (kaaslaste iseloomustus) ja <strong>STRATEEGIA</strong> (kriisi lahendamine).</p>
-                    
-                    <h3>3. HÄÄLETAMINE</h3>
-                    <p>Iga küsimuse järel vali nimekirjast mängija, kes vastusega kõige paremini sobib. Iga hääl on 1 punkt. Tulemused ilmuvad reaalajas raportisse.</p>
+    <section id="player-controller" style="display:none; text-align:center; padding: 50px 20px;">
+        <div class="home-ui" style="position: static; transform: none; width: 90%; margin: 0 auto;">
+            <h2 id="controller-status">OOTA KÄSKLUSI...</h2>
+            <div id="remote-vote-btns" class="voting-zone" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
                 </div>
-                <button class="btn-confirm-heavy" onclick="closeManual()"><span class="btn-inner">TAGASI</span></button>
-            </div>
         </div>
     </section>
 
     <main id="game-interface" style="display:none">
         <nav class="command-panel">
             <div class="nav-btn-group">
-                <span id="room-display" style="color:var(--accent); font-weight:bold;">OPERATSIOON: ONLINE</span>
-                <span id="current-phase-name" style="color:white; padding:0 15px; border-left: 1px solid #444;">FAAS</span>
-                <button onclick="endGame()" class="btn-end-mission">LÕPETA</button>
+                <div id="room-info" style="color: #0f4; border: 1px solid #333; padding: 5px 15px;">ONLINE SESSION ACTIVE</div>
+                <button onclick="endGame()" class="btn-end-mission">LÕPETA MISSIOON</button>
             </div>
         </nav>
+
         <div class="tabletop">
             <div id="folder" class="folder-closed" onclick="openFolder()">
                 <div class="folder-front">
-                    <div class="folder-tab">FILE_402_B</div>
+                    <div class="folder-tab">FILE_ONLINE</div>
                     <div class="folder-cover-content">
-                        <div class="stamp-red">TOP SECRET</div>
-                        <h2 style="color: white; margin: 10px 0;">DILEMMAD</h2>
+                        <div class="stamp-red">LIVE FEED</div>
+                        <h2>OPERATSIOONI TOIMIK</h2>
                         <p class="blink-text">[ VAJUTA AVAMISEKS ]</p>
                     </div>
                 </div>
                 <div class="folder-inside">
-                    <div class="paper-page operational-report">
-                        <div class="confidential-watermark">CONFIDENTIAL</div>
-                        
-                        <div class="report-header">
-                            <div class="header-top">
-                                <span>KAEVIKUDILEMMAD VORM 1-A</span>
-                                <span>EKSEMPLAR 1 / 1</span>
+                    <div class="paper-page">
+                        <div class="page-grid">
+                            <div class="content-left">
+                                <div class="report-meta">RAPORT #<span id="card-num">01</span></div>
+                                <div class="question-area"><p id="task-text">Ootame andmeid...</p></div>
+                                <button class="btn-confirm-heavy" onclick="nextCard()"><span class="btn-inner">JÄRGMINE KÜSIMUS</span></button>
                             </div>
-                            <div class="header-main">
-                                <h1>OPERATIIVRAPORT #<span id="card-num">01</span></h1>
-                                <p>KUUPÄEV: <span id="current-date"></span></p>
-                                <p>TEEMA: PSÜHHOLOOGILINE HINDAMINE / OPERATIIVOTSUSED</p>
+                            <div class="content-right">
+                                <div class="photo-box"><img id="task-img" src="war.jpg"></div>
+                                <div class="stat-box"><div id="score-display"></div></div>
                             </div>
-                        </div>
-
-                        <div class="report-body">
-                            <div class="section-title">I. OLUKORRA KIRJELDUS / DILEMMA</div>
-                            <div class="question-area">
-                                <p id="task-text">Laen andmeid...</p>
-                            </div>
-
-                            <div class="section-title">II. VISUAALNE LISA / TAKTILINE ILLUSTRATSIOON</div>
-                            <div class="photo-box">
-                                <img id="task-img" src="" alt="Tactical illustration" />
-                                <div class="photo-caption">JOONIS 1: OPERATSIOONIALA / OBJEKT</div>
-                            </div>
-
-                            <div class="section-title">III. HINDAMINE JA HÄÄLETUS</div>
-                            <div id="vote-btns-container"></div>
-                        </div>
-
-                        <div class="report-footer">
-                            <div class="section-title">IV. PUNKTIDE SEIS</div>
-                            <div class="stat-box">
-                                <div id="score-display"></div>
-                            </div>
-                            <button class="btn-confirm-heavy" onclick="nextCard(event)">
-                                <span class="btn-inner">KINNITA OTSUS JA JÄRKA</span>
-                            </button>
-                            <p class="footer-note">KÄESOLEV DOKUMENT ON KAITSTUD JA MÕELDUD AINULT AMETIALASEKS KASUTAMISEKS.</p>
                         </div>
                     </div>
                 </div>
@@ -121,19 +76,20 @@
         </div>
     </main>
 
-    <section id="debrief-screen" style="display:none;">
+    <section id="debrief-screen" style="display: none;">
         <div class="tabletop">
             <div id="final-folder" class="folder-closed" onclick="openFinalFolder()">
-                <div class="folder-front"><h2>TULEMUSED</h2></div>
+                <div class="folder-front">
+                    <h2>MISSIOONI LÕPP</h2>
+                </div>
                 <div class="folder-inside">
-                    <div class="paper-page operational-report">
-                        <div class="report-header">
-                            <h1>LÕPPRAPORT</h1>
-                        </div>
-                        <div id="winner-announcement"></div>
-                        <div class="section-title">EDETABEL</div>
-                        <div id="final-leaderboard" class="stat-box"></div>
-                        <button class="btn-confirm-heavy" onclick="location.reload()" style="margin-top: 20px;"><span class="btn-inner">SULE TOIMIK</span></button>
+                    <div class="paper-page">
+                        <h1>VÕITJA:</h1>
+                        <div id="winner-announcement" class="winner-name"></div>
+                        <div id="final-leaderboard" class="final-stats-box"></div>
+                        <button class="btn-confirm-heavy" onclick="location.reload()" style="margin-top:20px;">
+                            <span class="btn-inner">SULE JA VÄLJU</span>
+                        </button>
                     </div>
                 </div>
             </div>
