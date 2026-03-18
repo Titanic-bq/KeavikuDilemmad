@@ -31,37 +31,14 @@ const Generator = {
         missioon: ["Vallutada välikäimla", "Hävitada kütuseauto", "Kaitsta kohvivaru", "Evakueerida rühmavanem"],
         kriis: ["48h magamata", "laskemoon on herned", "side on maas", "pesukarude rünnak"]
     },
-    // KASUTAB KOHALIKKE FAILE (peavad olema HTML-iga samas kaustas)
     phaseImages: {
-        "DILEMMAD": [
-            "taku1.png", 
-            "taku2.png",
-            "taku3.png",
-        ],
+        "DILEMMAD": ["taku1.png", "taku2.png", "taku3.png"],
         "STRATEEGIA": [
-            "sõda1.png",
-            "sõda2.png",
-            "sõda3.png",
-            "sõda4.png",
-            "sõda5.png",
-            "sõda6.png",
-            "sõda7.png",
-            "sõda8.png",
-            "sõda9.png",
-            "sõda10.png",
-            "sõda11.png",
-            "sõda12.png",
-            "sõda13.png",
-            "sõda14.png",
-            "sõda15.png"
+            "sõda1.png", "sõda2.png", "sõda3.png", "sõda4.png", "sõda5.png",
+            "sõda6.png", "sõda7.png", "sõda8.png", "sõda9.png", "sõda10.png",
+            "sõda11.png", "sõda12.png", "sõda13.png", "sõda14.png", "sõda15.png"
         ],
-        "ELLUJÄÄMINE": [
-            "propa1.png",
-            "propa2.png",
-            "propa3.png",
-            "propa4.png",
-            "propa5.png"
-        ]
+        "ELLUJÄÄMINE": ["propa1.png", "propa2.png", "propa3.png", "propa4.png", "propa5.png"]
     }
 };
 
@@ -73,6 +50,31 @@ function openManual() {
 function closeManual() {
     document.getElementById("manual-screen").style.display = "none";
     document.getElementById("home-screen").style.display = "flex";
+}
+
+// --- CUSTOM MODAL ABIFUNKTSIOONID ---
+function showCustomModal(msg, showInput, callback) {
+    const modal = document.getElementById("custom-modal");
+    const input = document.getElementById("modal-input");
+    const confirmBtn = document.getElementById("modal-confirm");
+    const cancelBtn = document.getElementById("modal-cancel");
+
+    document.getElementById("modal-msg").innerText = msg;
+    input.style.display = showInput ? "inline-block" : "none";
+    modal.style.display = "flex";
+    if (showInput) input.focus();
+
+    confirmBtn.onclick = () => {
+        if (callback) callback(input.value);
+        if (!showInput) closeModal();
+    };
+    cancelBtn.onclick = closeModal;
+    input.onkeypress = (e) => { if (e.key === "Enter") confirmBtn.click(); };
+}
+
+function closeModal() {
+    document.getElementById("custom-modal").style.display = "none";
+    document.getElementById("modal-input").value = "";
 }
 
 // --- MÄNGU LOOMINE ---
@@ -96,17 +98,21 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName || myName === "HOST") return alert("SÕDUR, IDENTIFITSEERI ENNAST!");
-    let inputPin = prompt("SISESTA PIN:");
-    if (!inputPin) return;
+    if (!myName || myName === "HOST") return showCustomModal("SÕDUR, IDENTIFITSEERI ENNAST!", false);
 
-    db.ref('rooms/' + inputPin).once('value', (snap) => {
-        if (snap.exists()) {
-            gamePin = inputPin;
-            roomRef = db.ref('rooms/' + gamePin);
-            roomRef.child('players/' + myName).set({ score: 0 });
-            listenForData();
-        } else alert("VALE PIN!");
+    showCustomModal("SISESTA ÜKSUSE PIN:", true, (inputPin) => {
+        if (!inputPin) return;
+        db.ref('rooms/' + inputPin).once('value', (snap) => {
+            if (snap.exists()) {
+                gamePin = inputPin;
+                roomRef = db.ref('rooms/' + gamePin);
+                roomRef.child('players/' + myName).set({ score: 0 });
+                listenForData();
+                closeModal();
+            } else {
+                showCustomModal("VALE PIN-KOOD!", false);
+            }
+        });
     });
 }
 
@@ -137,7 +143,6 @@ function listenForData() {
             if (taskEl.innerText !== data.currentQ) hasVotedThisRound = false; 
             taskEl.innerText = data.currentQ;
             
-            // Pildi kuvamine
             const taskImg = document.getElementById("task-img");
             if (data.currentImg) {
                 taskImg.src = data.currentImg;
@@ -158,20 +163,13 @@ function listenForData() {
 function startGame() { nextCard(); }
 
 function nextCard() {
-    // 1. Millist faasi me hetkel kuvame?
     const currentPhaseName = phases[phaseIndex];
-    
-    // 2. Vali pilt vastavalt praegusele faasile
     const phaseList = Generator.phaseImages[currentPhaseName];
     const img = phaseList[Math.floor(Math.random() * phaseList.length)];
-    
-    // 3. Genereeri küsimus
     const q = generateQuestion(currentPhaseName);
     
-    // 4. Arvuta JÄRGMINE faas tuleviku jaoks
     let nextPhaseIdx = (phaseIndex + 1) % 3;
     
-    // 5. Saada Firebase'i
     roomRef.update({ 
         status: "started", 
         currentQ: q, 
@@ -182,7 +180,7 @@ function nextCard() {
 
 function generateQuestion(p) {
     if (p === "DILEMMAD") return `KAS EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?`;
-    if (p === "RÜHMAVAIM") return `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
+    if (p === "ELLUJÄÄMINE") return `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
     return `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
 }
 
@@ -193,7 +191,6 @@ function renderButtons() {
         container.innerHTML = "<div class='voted-msg'>VALIK SAADETUD</div>";
         return;
     }
-    // Host ei hääleta ja enda poolt ei hääleta
     container.innerHTML = players.filter(p => p !== myName && p !== "HOST").map(p => 
         `<button class="vote-btn-metal" onclick="vote('${p}')">${p}</button>`
     ).join("");
