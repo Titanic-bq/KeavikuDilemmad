@@ -1,27 +1,86 @@
-:root { --accent: #0f4; --red: #bc0000; --paper: #dcd0b9; --folder: #5d4a37; }
-body { margin: 0; background: #000; color: #fff; font-family: monospace; overflow: hidden; height: 100vh; }
+:root { 
+    --accent: #0f4; 
+    --red: #bc0000; 
+    --paper: #dcd0b9; 
+    --folder: #5d4a37; 
+}
 
-/* CRT */
-.crt-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 1000; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 3px; }
+body { 
+    margin: 0; 
+    background: #000; 
+    color: #fff; 
+    font-family: monospace; 
+    overflow: hidden; 
+    height: 100vh; 
+}
 
-/* UUS: Müra taustal */
-.noise-bg { position: fixed; inset: 0; background: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_p_Noisy_Texture.png'); opacity: 0.03; z-index: -1; animation: noiseShift 0.2s infinite; }
-@keyframes noiseShift { 0% { background-position: 0 0; } 100% { background-position: 100px 100px; } }
-
-/* AVAKUVA JA TAUST */
-#home-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 100; overflow: hidden; }
-
-.war-zone-bg { 
-    position: absolute; inset: 0; 
-    background: url('https://images.unsplash.com/photo-1579546671585-7844a13a969a?w=1600') no-repeat center center; 
+/* --- TAUSTADE SÜSTEEM (UUS) --- */
+.global-bg { 
+    position: fixed; 
+    inset: 0; 
+    z-index: -2; 
     background-size: cover; 
-    filter: blur(5px) sepia(1) hue-rotate(90deg) brightness(0.3); /* Roheline, tume, udune */
-    z-index: -2;
-    transform: scale(1.1); /* Et ääred ei paistaks blurriga */
+    background-position: center; 
+    opacity: 0; 
+    transition: opacity 1.5s ease; 
+}
+
+.global-bg.active { 
+    opacity: 1; 
+}
+
+#bg-home { 
+    background-image: url('Brief.webp'); 
+    filter: brightness(0.2) sepia(1) hue-rotate(90deg); 
+}
+
+#bg-game { 
+    background-image: url('war.jpg'); 
+    filter: brightness(0.15) sepia(1) hue-rotate(-50deg); 
+}
+
+#bg-final { 
+    
+    background-image: url('end.png');
+     filter: brightness(0.3) sepia(1) hue-rotate(-20deg);
+}
+
+/* --- EFEKTID (CRT & NOISE) --- */
+.crt-overlay { 
+    position: fixed; 
+    inset: 0; 
+    pointer-events: none; 
+    z-index: 1000; 
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); 
+    background-size: 100% 3px; 
+}
+
+.noise-bg { 
+    position: fixed; 
+    inset: 0; 
+    background: url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_p_Noisy_Texture.png'); 
+    opacity: 0.03; 
+    z-index: -1; 
+    animation: noiseShift 0.2s infinite; 
+}
+
+@keyframes noiseShift { 
+    0% { background-position: 0 0; } 
+    100% { background-position: 100px 100px; } 
+}
+
+/* --- AVAKUVA UI --- */
+#home-screen { 
+    position: fixed; 
+    inset: 0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 100; 
 }
 
 .home-ui-metal { 
-    background: rgba(10, 15, 10, 0.95); /* Tume-roheline, läbipaistev */
+    background: rgba(10, 15, 10, 0.95); 
     padding: 40px; 
     border: 2px solid rgba(0, 255, 68, 0.3); 
     border-top: 4px solid var(--accent); 
@@ -31,7 +90,22 @@ body { margin: 0; background: #000; color: #fff; font-family: monospace; overflo
     position: relative;
 }
 
-/* UUENDATUD NIME KAST (Sihiku stiilis) */
+.top-secret-bar { 
+    background: var(--red); 
+    color: white; 
+    padding: 2px; 
+    font-size: 0.7rem; 
+    margin-bottom: 10px; 
+    font-weight: bold;
+}
+
+h1 { 
+    font-size: 2.8rem; 
+    text-shadow: 0 0 10px var(--accent); 
+    margin-bottom: 30px;
+}
+
+/* --- SISENDKAST (SIHIKU STIILIS) --- */
 .input-target-wrapper {
     position: relative;
     margin-bottom: 20px;
@@ -41,7 +115,7 @@ body { margin: 0; background: #000; color: #fff; font-family: monospace; overflo
 #player-name { 
     width: 100%; 
     padding: 15px; 
-    background: rgba(0, 20, 0, 0.8); /* Tume sihik */
+    background: rgba(0, 20, 0, 0.8); 
     border: 1px solid #333; 
     color: var(--accent); 
     text-align: center; 
@@ -53,7 +127,6 @@ body { margin: 0; background: #000; color: #fff; font-family: monospace; overflo
     text-shadow: 0 0 5px var(--accent);
 }
 
-/* Sihiku nurgad */
 .target-corner { position: absolute; width: 15px; height: 15px; border: 2px solid var(--accent); }
 .tl { top: 0; left: 0; border-right: none; border-bottom: none; }
 .tr { top: 0; right: 0; border-left: none; border-bottom: none; }
@@ -62,53 +135,137 @@ body { margin: 0; background: #000; color: #fff; font-family: monospace; overflo
 
 #player-name:focus { border-color: var(--accent); background: rgba(0, 40, 0, 0.9); }
 
-/* HOTBAR */
-.hotbar { position: fixed; top: 0; width: 100%; height: 45px; background: #111; border-bottom: 2px solid #333; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 500; }
-.phase-track { display: flex; gap: 10px; color: #444; font-size: 0.8rem; font-weight: bold; }
-.phase-step.active { color: var(--accent); text-shadow: 0 0 8px var(--accent); }
+/* --- MÄNGU INTERFEIS & HOTBAR --- */
+.hotbar { 
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    height: 45px; 
+    background: #111; 
+    border-bottom: 2px solid #333; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 20px; 
+    box-sizing: border-box; 
+    z-index: 500; 
+}
 
-/* KAUST JA PABER */
-.tabletop { height: 100vh; display: flex; align-items: center; justify-content: center; padding-top: 40px; }
-#folder { width: 900px; height: 600px; position: relative; }
-.paper-page { background: var(--paper); width: 100%; height: 100%; padding: 30px; color: #1a1a1a; position: relative; border-left: 10px solid #c4b59d; display: flex; flex-direction: column; box-sizing: border-box; box-shadow: 0 0 40px #000; }
+.phase-track { 
+    display: flex; 
+    gap: 10px; 
+    color: #444; 
+    font-size: 0.8rem; 
+    font-weight: bold; 
+}
+
+.phase-step.active { 
+    color: var(--accent); 
+    text-shadow: 0 0 8px var(--accent); 
+}
+
+.tabletop { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding-top: 40px; 
+}
+
+#folder { 
+    width: 900px; 
+    height: 600px; 
+    position: relative; 
+}
+
+.paper-page { 
+    background: var(--paper); 
+    width: 100%; 
+    height: 100%; 
+    padding: 30px; 
+    color: #1a1a1a; 
+    position: relative; 
+    border-left: 10px solid #c4b59d; 
+    display: flex; 
+    flex-direction: column; 
+    box-sizing: border-box; 
+    box-shadow: 0 0 40px #000; 
+}
 
 .page-layout { display: flex; gap: 20px; flex: 1; overflow: hidden; }
 .content-left { flex: 1.4; display: flex; flex-direction: column; }
 .content-right { flex: 1; display: flex; flex-direction: column; gap: 15px; }
 
-.question-area { background: rgba(0,0,0,0.05); border: 1px solid #999; padding: 20px; font-weight: bold; min-height: 120px; font-size: 1.2rem; color: #000; white-space: pre-wrap; margin-bottom: 15px; }
-.photo-box img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border: 5px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-.stat-box { border: 1px dashed #777; padding: 10px; flex-grow: 1; background: rgba(255,255,255,0.3); }
-
-/* NUPUD */
-.metal-btn, .metal-btn-large, .vote-btn-metal { background: #1a1a1a; border: 1px solid #444; color: #ccc; padding: 12px; cursor: pointer; font-family: inherit; text-transform: uppercase; font-weight: bold; }
-.metal-btn-large { width: 100%; color: var(--accent); border-color: var(--accent); margin-top: auto; font-size: 1.1rem; }
-.vote-btn-metal { width: 100%; margin-bottom: 8px; border-color: #555; }
-.vote-btn-metal:active { background: var(--accent); color: #000; }
-.btn-massive-red { background: var(--red); color: #fff; width: 100%; padding: 15px; border: none; cursor: pointer; font-family: inherit; font-weight: bold; }
-.btn-abort { background: var(--red); color: #fff; border: none; padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 0.7rem; }
-
-/* EFEKTID */
-.stamp-final { border: 6px solid var(--red); color: var(--red); padding: 15px; transform: rotate(-5deg); font-weight: 900; font-size: 2rem; display: inline-block; margin: 20px 0; }
-.blink-text { animation: blink 1.5s infinite; }
-@keyframes blink { 50% { opacity: 0.2; } }
-
-.player-tag { border: 1px solid var(--accent); color: var(--accent); padding: 2px 6px; font-size: 0.7rem; margin: 2px; display: inline-block;}
-.top-secret-bar { background: var(--red); color: white; padding: 2px; font-size: 0.7rem; margin-bottom: 10px; font-weight: bold;}
-h1 { font-size: 2.8rem; text-shadow: 0 0 10px var(--accent); margin-bottom: 30px;}
-
-/* MOBIILI KOHANDUS */
-@media (max-width: 800px) {
-    #folder { width: 98vw; height: 94vh; }
-    .page-layout { flex-direction: column; overflow-y: auto; }
-    #side-info { display: none; }
-    .question-area { font-size: 1rem; padding: 10px; }
-    .home-ui-metal { width: 90%; padding: 20px; }
-    h1 { font-size: 2rem; }
+.question-area { 
+    background: rgba(0,0,0,0.05); 
+    border: 1px solid #999; 
+    padding: 20px; 
+    font-weight: bold; 
+    min-height: 120px; 
+    font-size: 1.2rem; 
+    color: #000; 
+    white-space: pre-wrap; 
+    margin-bottom: 15px; 
 }
-/* --- JUHENDI EKRAANI JA NUPU TÄIENDUSED --- */
 
-/* Küsimärgi nupu spetsiifiline stiil */
+.photo-box { 
+    margin: 10px auto; 
+    width: 100%; 
+    height: 300px; /* Määrame kindla kõrguse, et paber ei veniks liiga pikaks */
+    background: #000; 
+    border: 5px solid #fff; 
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.3); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    overflow: hidden;
+}
+
+.photo-box img { 
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: contain; /* See on see "võlusõna", mis surub pildi kasti sisse */
+    filter: sepia(0.4) contrast(1.1);
+}
+
+.stat-box { 
+    border: 1px dashed #777; 
+    padding: 10px; 
+    flex-grow: 1; 
+    background: rgba(255,255,255,0.3); 
+}
+
+/* --- NUPUD --- */
+.metal-btn, .metal-btn-large, .vote-btn-metal { 
+    background: #1a1a1a; 
+    border: 1px solid #444; 
+    color: #ccc; 
+    padding: 12px; 
+    cursor: pointer; 
+    font-family: inherit; 
+    text-transform: uppercase; 
+    font-weight: bold; 
+}
+
+.metal-btn-large { 
+    width: 100%; 
+    color: var(--accent); 
+    border-color: var(--accent); 
+    margin-top: auto; 
+    font-size: 1.1rem; 
+}
+
+.vote-btn-metal { 
+    width: 100%; 
+    margin-bottom: 8px; 
+    border-color: #555; 
+}
+
+.vote-btn-metal:active { 
+    background: var(--accent); 
+    color: #000; 
+}
+
 .btn-help { 
     background: rgba(0, 255, 65, 0.1) !important; 
     color: var(--accent) !important; 
@@ -116,41 +273,53 @@ h1 { font-size: 2.8rem; text-shadow: 0 0 10px var(--accent); margin-bottom: 30px
     font-size: 1.2rem;
 }
 
-/* Juhendi ekraani konteiner */
+.btn-massive-red { 
+    background: var(--red); 
+    color: #fff; 
+    width: 100%; 
+    padding: 15px; 
+    border: none; 
+    cursor: pointer; 
+    font-family: inherit; 
+    font-weight: bold; 
+}
+
+.btn-abort { 
+    background: var(--red); 
+    color: #fff; 
+    border: none; 
+    padding: 6px 12px; 
+    cursor: pointer; 
+    font-family: inherit; 
+    font-size: 0.7rem; 
+}
+
+/* --- JUHENDI EKRAAN (MANUAL) --- */
 #manual-screen { 
     position: fixed; 
     inset: 0; 
     display: none; 
     align-items: center; 
     justify-content: center; 
-    z-index: 1000; /* Toome kõige ette */
-    background: rgba(0,0,0,0.8); /* Tumedam taust, et sisu eralduks */
+    z-index: 2000; 
+    background: rgba(0,0,0,0.9); 
 }
 
-/* Juhendi paberi stiil */
 .manual-page { 
     max-width: 500px; 
     height: auto !important; 
     max-height: 85vh; 
     border: 2px solid #333; 
     box-shadow: 0 0 50px #000;
-    overflow-y: auto; /* Kui tekst on pikk, saab kerida */
-}
-
-/* Juhendi sisu tekst */
-.manual-content h3 {
-    color: var(--red);
-    font-size: 1rem;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #999;
+    overflow-y: auto; 
 }
 
 .manual-content p {
     margin-bottom: 15px;
     line-height: 1.4;
+    color: #000;
 }
 
-/* Vesimärk juhendi taustal */
 .confidential-watermark { 
     position: absolute; 
     top: 50%; 
@@ -165,9 +334,31 @@ h1 { font-size: 2.8rem; text-shadow: 0 0 10px var(--accent); margin-bottom: 30px
     z-index: 0; 
 }
 
-/* --- TÄIENDUSTE LÕPP --- */
+/* --- LÕPUEFEKTID --- */
+.stamp-final { 
+    border: 6px solid var(--red); 
+    color: var(--red); 
+    padding: 15px; 
+    transform: rotate(-5deg); 
+    font-weight: 900; 
+    font-size: 2rem; 
+    display: inline-block; 
+    margin: 20px 0; 
+}
 
-/* Sinu algne mobiili kohandus jääb siit edasi... */
+.blink-text { animation: blink 1.5s infinite; }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+.player-tag { 
+    border: 1px solid var(--accent); 
+    color: var(--accent); 
+    padding: 2px 6px; 
+    font-size: 0.7rem; 
+    margin: 2px; 
+    display: inline-block;
+}
+
+/* --- MOBIILI KOHANDUS --- */
 @media (max-width: 800px) {
     #folder { width: 98vw; height: 94vh; }
     .page-layout { flex-direction: column; overflow-y: auto; }

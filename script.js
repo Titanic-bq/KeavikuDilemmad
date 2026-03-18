@@ -14,13 +14,12 @@ const db = firebase.database();
 let isHost = false, myName = "", gamePin = "", roomRef = null;
 let players = [], scores = {}, hasVotedThisRound = false;
 let phaseIndex = 0;
-const phases = ["DILEMMAD", "RÜHMAVAIM", "STRATEEGIA"];
+const phases = ["DILEMMAD", "STRATEEGIA", "ELLUJÄÄMINE"];
 
 const quotes = [
     "\"Ainult surnud on näinud sõja lõppu.\" – Platon",
     "\"Sõda ei otsusta, kellel on õigus, vaid ainult seda, kes jääb järele.\" – Bertrand Russell",
     "\"Kõik sõjapidamine põhineb petmisel.\" – Sun Tzu",
-    "\"Rahu on see lühike hetk ajaloos, kui kõik laevad uusi salvi.\" – Anonüümne",
     "\"Distsipliin on rünnaku hing.\" – George Washington"
 ];
 
@@ -32,24 +31,54 @@ const Generator = {
         missioon: ["Vallutada välikäimla", "Hävitada kütuseauto", "Kaitsta kohvivaru", "Evakueerida rühmavanem"],
         kriis: ["48h magamata", "laskemoon on herned", "side on maas", "pesukarude rünnak"]
     },
-    images: ["https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500", "https://images.unsplash.com/photo-1599408162165-8b111666e191?w=500", "https://images.unsplash.com/photo-1579546671585-7844a13a969a?w=500"]
+    // KASUTAB KOHALIKKE FAILE (peavad olema HTML-iga samas kaustas)
+    phaseImages: {
+        "DILEMMAD": [
+            "taku1.png", 
+            "taku2.png",
+            "taku3.png",
+        ],
+        "STRATEEGIA": [
+            "sõda1.png",
+            "sõda2.png",
+            "sõda3.png",
+            "sõda4.png",
+            "sõda5.png",
+            "sõda6.png",
+            "sõda7.png",
+            "sõda8.png",
+            "sõda9.png",
+            "sõda10.png",
+            "sõda11.png",
+            "sõda12.png",
+            "sõda13.png",
+            "sõda14.png",
+            "sõda15.png"
+        ],
+        "ELLUJÄÄMINE": [
+            "propa1.png",
+            "propa2.png",
+            "propa3.png",
+            "propa4.png",
+            "propa5.png"
+        ]
+    }
 };
 
-// --- UUS OSA: JUHENDI FUNKTSIOONID ---
+// --- JUHEND ---
 function openManual() {
     document.getElementById("home-screen").style.display = "none";
     document.getElementById("manual-screen").style.display = "flex";
 }
-
 function closeManual() {
     document.getElementById("manual-screen").style.display = "none";
     document.getElementById("home-screen").style.display = "flex";
 }
-// --- JUHENDI OSA LÕPP ---
 
+// --- MÄNGU LOOMINE ---
 function hostGame() {
     isHost = true;
-    myName = "HOST"; // Host on ka mängija
+    myName = "HOST"; 
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
     
@@ -57,7 +86,7 @@ function hostGame() {
         status: "waiting", 
         phaseIndex: 0, 
         currentQ: "OOTAME ÜKSUSE KOGUNEMIST...",
-        players: { "HOST": { score: 0 } } 
+        players: {} 
     }).then(() => {
         document.getElementById("status-msg").innerHTML = `PIN: <span style="color:#0f4; font-size:2.5rem; font-weight:bold;">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
@@ -67,7 +96,7 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName || myName === "HOST") return alert("SÕDUR, SISEND ON VIGANE!");
+    if (!myName || myName === "HOST") return alert("SÕDUR, IDENTIFITSEERI ENNAST!");
     let inputPin = prompt("SISESTA PIN:");
     if (!inputPin) return;
 
@@ -76,15 +105,8 @@ function joinGame() {
             gamePin = inputPin;
             roomRef = db.ref('rooms/' + gamePin);
             roomRef.child('players/' + myName).set({ score: 0 });
-            
-            // LÜLITA KOHE ÜMBER
-            document.getElementById("home-screen").style.display = "none";
-            document.getElementById("game-interface").style.display = "block";
-            
             listenForData();
-        } else {
-            alert("VALE PIN!");
-        }
+        } else alert("VALE PIN!");
     });
 }
 
@@ -96,11 +118,12 @@ function listenForData() {
         players = Object.keys(scores);
         phaseIndex = data.phaseIndex || 0;
 
-        // Ooteala nimekiri
         const pList = document.getElementById("player-list");
-        if(pList) pList.innerHTML = "ÜKSUS: " + players.map(p => `<span class="player-tag">${p}</span>`).join(" ");
+        if(pList) pList.innerHTML = "ÜKSUS: " + (players.length > 0 ? players.map(p => `<span class="player-tag">${p}</span>`).join(" ") : "OOTEL...");
 
         if (data.status === "started") {
+            document.getElementById("bg-home").classList.remove("active");
+            document.getElementById("bg-game").classList.add("active");
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
             if (isHost) {
@@ -111,14 +134,19 @@ function listenForData() {
 
         if (data.currentQ) {
             const taskEl = document.getElementById("task-text");
-            if (taskEl.innerText !== data.currentQ) {
-                hasVotedThisRound = false; 
-            }
+            if (taskEl.innerText !== data.currentQ) hasVotedThisRound = false; 
             taskEl.innerText = data.currentQ;
-            document.getElementById("task-img").src = data.currentImg || "";
-            document.getElementById("page-title").innerText = data.status === "waiting" ? "OOTEREŽIIM" : "ETAPP: " + phases[phaseIndex];
             
+            // Pildi kuvamine
+            const taskImg = document.getElementById("task-img");
+            if (data.currentImg) {
+                taskImg.src = data.currentImg;
+                taskImg.style.display = "block";
+            }
+
+            document.getElementById("page-title").innerText = data.status === "waiting" ? "OOTEREŽIIM" : "ETAPP: " + phases[phaseIndex];
             document.querySelectorAll(".phase-step").forEach((el, idx) => el.classList.toggle("active", idx === phaseIndex));
+            
             if (!isHost && data.status === "started") renderButtons();
         }
 
@@ -127,20 +155,28 @@ function listenForData() {
     });
 }
 
-function startGame() {
-    nextCard();
-}
+function startGame() { nextCard(); }
 
 function nextCard() {
-    let nextPhase = (phaseIndex + 1) % 3;
-    const q = generateQuestion(phases[phaseIndex]);
-    const img = Generator.images[Math.floor(Math.random() * Generator.images.length)];
+    // 1. Millist faasi me hetkel kuvame?
+    const currentPhaseName = phases[phaseIndex];
     
+    // 2. Vali pilt vastavalt praegusele faasile
+    const phaseList = Generator.phaseImages[currentPhaseName];
+    const img = phaseList[Math.floor(Math.random() * phaseList.length)];
+    
+    // 3. Genereeri küsimus
+    const q = generateQuestion(currentPhaseName);
+    
+    // 4. Arvuta JÄRGMINE faas tuleviku jaoks
+    let nextPhaseIdx = (phaseIndex + 1) % 3;
+    
+    // 5. Saada Firebase'i
     roomRef.update({ 
         status: "started", 
         currentQ: q, 
         currentImg: img,
-        phaseIndex: nextPhase
+        phaseIndex: nextPhaseIdx
     });
 }
 
@@ -157,7 +193,8 @@ function renderButtons() {
         container.innerHTML = "<div class='voted-msg'>VALIK SAADETUD</div>";
         return;
     }
-    container.innerHTML = players.filter(p => p !== myName).map(p => 
+    // Host ei hääleta ja enda poolt ei hääleta
+    container.innerHTML = players.filter(p => p !== myName && p !== "HOST").map(p => 
         `<button class="vote-btn-metal" onclick="vote('${p}')">${p}</button>`
     ).join("");
 }
@@ -172,23 +209,21 @@ function updateScoreDisplay() {
     const display = document.getElementById("score-display");
     if (!display) return;
     display.innerHTML = "<b>ÜKSUSE SKOORID:</b><br>" + Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;font-size:0.8rem;color:#000;padding:2px 0;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;padding:2px 0;color:#000;"><span>${p[0]}</span><span>${p[1].score}</span></div>`).join("");
 }
 
 function terminateMission() {
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    roomRef.update({ status: "ended", finalQuote: randomQuote });
+    roomRef.update({ status: "ended", finalQuote: quotes[Math.floor(Math.random() * quotes.length)] });
 }
 
 function showEndScreen(quote) {
+    document.getElementById("bg-game").classList.remove("active");
+    document.getElementById("bg-final").classList.add("active");
     document.getElementById("game-content").style.display = "none";
     document.getElementById("end-screen-content").style.display = "block";
     if (quote) document.getElementById("war-quote").innerText = quote;
     const sorted = Object.entries(scores).sort((a,b) => b[1].score - a[1].score);
     if (sorted.length > 0) {
-        document.getElementById("winner-box").innerHTML = `
-            <h1 style="color:#bc0000; font-size: 2.2rem;">TOP SOLDIER: ${sorted[0][0]}</h1>
-            <h2 style="color:#000;">${sorted[0][1].score} INFLUENCE POINTS</h2>
-        `;
+        document.getElementById("winner-box").innerHTML = `<h1>VÕITJA: ${sorted[0][0]}</h1><h2>${sorted[0][1].score} PUNKTIGA</h2>`;
     }
 }

@@ -9,11 +9,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
+    <div id="bg-home" class="global-bg active"></div>
+    <div id="bg-game" class="global-bg"></div>
+    <div id="bg-final" class="global-bg"></div>
+
     <div class="crt-overlay"></div>
     <div class="noise-bg"></div>
 
     <section id="home-screen">
-        <div class="war-zone-bg"></div>
         <div class="home-ui-metal">
             <div class="top-secret-bar">CLASSIFIED // SECTION 7</div>
             <h1 class="glitch-text">KAEVIKU<br>DILEMMAD</h1>
@@ -60,9 +63,9 @@
             <div class="phase-track">
                 <div class="phase-step active" id="p0">DILEMMAD</div>
                 <div class="phase-sep">>></div>
-                <div class="phase-step" id="p1">RÜHMAVAIM</div>
+                <div class="phase-step" id="p1">STRATEEGIA</div>
                 <div class="phase-sep">>></div>
-                <div class="phase-step" id="p2">STRATEEGIA</div>
+                <div class="phase-step" id="p2">ELLUJÄÄMINE</div>
             </div>
             <button id="host-end-btn" onclick="terminateMission()" class="btn-abort" style="display:none;">LÕPETA MISSIOON</button>
         </nav>
