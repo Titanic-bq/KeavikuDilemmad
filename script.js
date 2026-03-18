@@ -10,10 +10,11 @@ const firebaseConfig = {
     measurementId: "G-BWS6MQSYNK"
 };
 
+// Algatame Firebase'i
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// --- 2. MUUTUJAD ---
+// --- 2. MUUTUJAD JA ANDMED ---
 let isHost = false;
 let myName = "";
 let gamePin = ""; 
@@ -31,7 +32,12 @@ const Generator = {
         kriis: ["48h magamata", "laskemoon on herned", "side on maas", "pesukarude rünnak"],
         vahend: ["rull teipi ja küpsis", "depressiivne orav", "papist tank", "vana megafon"]
     },
-    images: ["https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500"]
+    images: [
+        "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500", 
+        "https://images.unsplash.com/photo-1599408162165-8b111666e191?w=500",
+        "https://images.unsplash.com/photo-1579546671585-7844a13a969a?w=500",
+        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500"
+    ]
 };
 
 let currentTheme = "dilemmad";
@@ -42,89 +48,65 @@ const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 // --- 3. KAHOOT-STYLE JOIN & HOST ---
 function hostGame() {
     isHost = true;
-    // Genereerime PIN-i
-    gamePin = Math.floor(1000 + Math.random() * 9000).toString();
-    myName = "HOST";
-    
-    // Loome viite konkreetsele toale
+    gamePin = Math.floor(1000 + Math.random() * 9000).toString(); // 4-kohaline PIN
     roomRef = db.ref('rooms/' + gamePin);
-
-    // KIRJUTAME ANDMED ANDMEBAASI (et see PIN eksisteeriks)
-    roomRef.set({
-        status: "waiting",
-        createdAt: Date.now(),
-        currentQ: "OOTAME ALGUST..."
-    }).then(() => {
-        console.log("Tuba loodud PIN-iga:", gamePin);
-        document.getElementById("status-msg").innerHTML = `MÄNGU PIN: <span style="font-size:2.5rem; color:#0f4; font-weight:bold;">${gamePin}</span>`;
-        document.getElementById("start-btn").style.display = "inline-block";
+    
+    // Loome toa andmebaasi
+    roomRef.set({ status: "waiting", currentQ: "OOTAME ALGUST..." }).then(() => {
+        document.getElementById("status-msg").innerHTML = `MÄNGU PIN: <span class="blink-text" style="color:#0f4; font-size:2.5rem;">${gamePin}</span>`;
+        document.getElementById("start-btn").style.display = "block";
         listenForData();
-    }).catch(err => {
-        console.error("Viga toa loomisel:", err);
-        alert("FIREBASE VIGA: Kontrolli 'Rules' vahelehte Firebase-is!");
     });
 }
 
 function joinGame() {
     isHost = false;
     myName = document.getElementById("player-name").value.trim().toUpperCase();
+    if (!myName) return alert("Sisesta nimi!");
     
-    if (!myName) return alert("SISESTA NIMI!");
-
     let inputPin = prompt("SISESTA 4-KOHALINE PIN:");
     if (!inputPin) return;
 
-    gamePin = inputPin.trim();
-    console.log("Proovin liituda PIN-iga:", gamePin);
-
-    // Kontrollime otse seda PIN-i kausta
-    db.ref('rooms/' + gamePin).once('value')
-        .then((snap) => {
-            if (snap.exists()) {
-                console.log("PIN leitud! Liitun...");
-                roomRef = db.ref('rooms/' + gamePin);
-                
-                // Lisame mängija
-                roomRef.child('players/' + myName).set({ score: 0 })
-                    .then(() => {
-                        document.getElementById("home-screen").style.display = "none";
-                        document.getElementById("player-controller").style.display = "block";
-                        listenForData();
-                    });
-            } else {
-                console.log("Sellist PIN-i ei leitud andmebaasist.");
-                alert("VALE PIN-KOOD! Kas Host vajutas 'Tee uus mäng'?");
-            }
-        })
-        .catch(err => {
-            console.error("Viga liitumisel:", err);
-            alert("Ühenduse viga!");
-        });
+    // Kontrollime andmebaasist PIN-i
+    db.ref('rooms/' + inputPin).once('value', (snap) => {
+        if (snap.exists()) {
+            gamePin = inputPin;
+            roomRef = db.ref('rooms/' + gamePin);
+            // Lisame mängija
+            roomRef.child('players/' + myName).set({ score: 0 });
+            document.getElementById("home-screen").style.display = "none";
+            document.getElementById("player-controller").style.display = "flex";
+            listenForData();
+        } else {
+            alert("VALE PIN-KOOD!");
+        }
+    });
 }
 
 // --- 4. SÜNKROONIMINE ---
 function listenForData() {
+    // 1. Kuulame mängijaid ja skoore
     roomRef.child('players').on('value', (snap) => {
-        const data = snap.val() || {};
-        players = Object.keys(data);
-        scores = data;
+        scores = snap.val() || {};
+        players = Object.keys(scores);
         
-        // Lobby nimekiri hosti ekraanil
-        const lobbyList = document.getElementById("player-list");
-        if(lobbyList) lobbyList.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
+        const lobby = document.getElementById("player-list");
+        if(lobby) lobby.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
         
         updateScoreDisplay();
         if (!isHost && !hasVotedThisRound) renderRemoteButtons();
     });
 
+    // 2. Kuulame jooksvat küsimust telefonis (RESETIB hääletuse)
     roomRef.child('currentQ').on('value', (snap) => {
         if (!isHost && snap.val()) {
-            hasVotedThisRound = false;
+            hasVotedThisRound = false; 
             document.getElementById("controller-status").innerText = snap.val();
             renderRemoteButtons();
         }
     });
 
+    // 3. Kuulame staatust (START)
     roomRef.child('status').on('value', (snap) => {
         if (snap.val() === "started" && isHost) {
             document.getElementById("home-screen").style.display = "none";
@@ -148,7 +130,8 @@ function generateSessionCards() {
             let q = theme === "dilemmad" ? `EELISTAKSID:\n> ${getRand("dilemmad")}\n\nVÕI:\n> ${getRand("asjad")}?` :
                     theme === "ryhmavaim" ? `KES TEIE HULGAST:\n> ${getRand("tegu_r")}?` :
                     `MISSIOON: ${getRand("missioon")}\nKRIIS: ${getRand("kriis")}`;
-            DB[theme].cards.push({ q, img: Generator.images[0] });
+            // Valime pildi massiivist
+            DB[theme].cards.push({ q, img: Generator.images[i % Generator.images.length] });
         }
     });
 }
@@ -161,14 +144,19 @@ function setupPhase(key) {
 function renderCard() {
     const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
     document.getElementById("task-text").innerText = card.q;
-    document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
+    document.getElementById("task-img").src = card.img;
+    const num = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
+    document.getElementById("card-num").innerText = num;
+    document.getElementById("card-num-2").innerText = num;
+    
     if (isHost) roomRef.update({ currentQ: card.q });
 }
 
 function renderRemoteButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container || hasVotedThisRound) return;
-    container.innerHTML = players.map(p => 
+    // Mängija ei hääleta enda poolt
+    container.innerHTML = players.filter(p => p !== myName).map(p => 
         `<button class="vote-btn" onclick="givePointOnline('${p}')">${p}</button>`
     ).join("");
 }
@@ -176,8 +164,9 @@ function renderRemoteButtons() {
 function givePointOnline(target) {
     if (hasVotedThisRound) return;
     hasVotedThisRound = true;
+    // Kasutame Transactionit punkti lisamiseks
     roomRef.child('players/' + target + '/score').transaction(s => (s || 0) + 1);
-    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>HÄÄL ANTUD!</div>";
+    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>HÄÄL SALVESTATUD!</div>";
 }
 
 function updateScoreDisplay() {
@@ -185,7 +174,7 @@ function updateScoreDisplay() {
     if (!display) return;
     display.innerHTML = Object.entries(scores)
         .sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #555;padding:5px 0;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #777;padding:2px 0;color:#000;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
 }
 
 function nextCard() {
@@ -201,4 +190,6 @@ function openFolder() {
 
 function getRand(k) { return Generator.vocab[k][Math.floor(Math.random() * Generator.vocab[k].length)]; }
 
-function endGame() { roomRef.update({ status: "ended" }); }
+function endGame() { 
+    roomRef.update({ status: "ended" }); 
+}

@@ -1,5 +1,5 @@
 :root {
-  --accent: #00ff41;
+  --accent: #0f4;
   --red: #8b0000;
   --paper: #dcd0b9;
   --folder-base: #5d4a37;
@@ -10,35 +10,32 @@ body {
   margin: 0;
   background: var(--bg);
   color: white;
-  font-family: "Courier New", monospace;
+  font-family: monospace;
   overflow-x: hidden;
   height: 100vh;
 }
 
-/* --- TAUSTAD JA CRT EFEKT --- */
-.global-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease;
-  filter: brightness(0.2) sepia(0.2);
-}
-.global-bg.active { opacity: 1; }
-
+/* CRT JA SCANLINE EFEKTID */
 .crt-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 1000;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-              linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
-  background-size: 100% 3px, 3px 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 3px;
 }
 
-/* --- AVAKUVA (HOST & JOIN) --- */
+.global-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  transition: opacity 1.5s;
+  background: #111;
+  opacity: 0;
+}
+.global-bg.active { opacity: 1; }
+
+/* AVAKUVA (HOST & JOIN) */
 .home-ui {
   position: absolute;
   top: 50%;
@@ -49,17 +46,13 @@ body {
   border: 1px solid #333;
   text-align: center;
   width: 90%;
-  max-width: 400px;
+  max-width: 380px;
   z-index: 10;
   border-top: 4px solid var(--accent);
 }
 
-h1 {
-  font-size: 2.2rem;
-  color: var(--accent);
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px var(--accent);
-}
+.top-secret-bar { background: var(--red); color: white; padding: 2px; font-size: 0.7rem; margin-bottom: 10px; }
+h1 { font-size: 2.5rem; color: var(--accent); margin: 0 0 20px 0; text-shadow: 0 0 10px var(--accent); line-height: 0.9; }
 
 #player-name {
   background: #000;
@@ -67,172 +60,153 @@ h1 {
   color: var(--accent);
   padding: 12px;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   text-align: center;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
-.btn-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.btn-row { display: flex; gap: 5px; margin-bottom: 15px; }
 .nav-toggle {
   flex: 1;
   background: #222;
+  color: #fff;
   border: 1px solid #444;
-  color: #888;
   padding: 12px;
   cursor: pointer;
+  font-family: inherit;
 }
 .nav-toggle:hover { color: var(--accent); border-color: var(--accent); }
 
+#status-msg { margin: 15px 0; color: var(--accent); font-weight: bold; }
+#start-btn { width: 100%; padding: 15px; background: white; color: black; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; }
+
 .player-tag {
   border: 1px solid var(--accent);
-  padding: 4px 10px;
-  margin: 5px;
+  color: var(--accent);
+  padding: 2px 8px;
+  margin: 3px;
   display: inline-block;
-  color: var(--accent);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
-/* --- MOBIILI PULT (KAHOOT STYLE) --- */
-#player-controller {
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-}
-
-.mobile-header {
-  background: #111;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent);
-  font-weight: bold;
-}
-
-#remote-vote-btns {
-  padding: 15px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.vote-btn {
-  background: #1a1a1a;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  padding: 20px;
-  font-size: 1.2rem;
-  font-family: inherit;
-  text-transform: uppercase;
-  border-radius: 5px;
-}
-.vote-btn:active { background: var(--accent); color: black; }
-
-/* --- HOSTI LAUD JA KAUST (ARVUTI) --- */
+/* HOSTI LAUD JA KAUST (ARVUTI) */
 .tabletop {
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 40px;
+  perspective: 1500px;
 }
 
 #folder {
-  width: 350px;
-  height: 500px;
+  width: 380px;
+  height: 550px;
   position: relative;
-  transition: 0.8s;
+  transition: width 0.6s, height 0.6s;
   cursor: pointer;
 }
-
-#folder.folder-open { width: 750px; }
+#folder.folder-open { width: 850px; }
 
 .folder-front {
   position: absolute;
   inset: 0;
   background: var(--folder-base);
   border: 1px solid #4a3629;
+  z-index: 5;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 50px rgba(0,0,0,0.8);
-  z-index: 5;
 }
+.folder-cover-content { text-align: center; color: #ccc; }
+.stamp-red { border: 3px solid var(--red); color: var(--red); font-weight: bold; padding: 5px; font-size: 1.2rem; transform: rotate(-10deg); margin-bottom: 20px; }
+.folder-tab { position: absolute; top: 20px; right: -40px; background: var(--folder-base); padding: 5px 15px; transform: rotate(90deg); color: #999; border: 1px solid #4a3629; }
 
-.folder-inside {
-  display: none;
-  width: 100%;
-  height: 100%;
-}
-
+.folder-inside { display: none; width: 100%; height: 100%; }
 .folder-open .folder-front { display: none; }
-.folder-open .folder-inside { display: flex; }
+.folder-open .folder-inside { display: block; }
 
+/* PABER KAUSTAS */
 .paper-page {
   background: var(--paper);
   width: 100%;
   height: 100%;
-  padding: 20px;
+  padding: 25px;
   color: #1a1a1a;
+  box-sizing: border-box;
+  position: relative;
   border-left: 10px solid #c4b59d;
   display: flex;
-  flex-direction: row; /* Tekst ja pilt kõrvuti */
-  gap: 20px;
+  flex-direction: column;
 }
 
-.content-left { flex: 1.5; display: flex; flex-direction: column; }
-.content-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.confidential-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 6rem;
+  color: rgba(139, 0, 0, 0.05);
+  font-weight: 900;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.page-layout { display: flex; flex: 1; gap: 20px; }
+.content-left { flex: 1.3; display: flex; flex-direction: column; }
+.content-right { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+
+/* RAPORTI HEADER JA KÜSIMUS */
+.report-header { border-bottom: 2px solid black; padding-bottom: 5px; margin-bottom: 10px; }
+.header-top { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; }
+.report-header h1 { font-size: 1.4rem; color: black; text-shadow: none; margin: 5px 0; }
 
 .question-area {
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.4);
   padding: 15px;
   border: 1px solid #999;
   font-size: 1.1rem;
   font-weight: bold;
-  margin: 10px 0;
-  min-height: 100px;
-}
-
-.photo-box img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  border: 4px solid #fff;
-  filter: sepia(0.5) contrast(1.1);
-}
-
-.stat-box {
-  background: rgba(0,0,0,0.05);
-  border: 1px dashed #666;
-  padding: 10px;
-  font-size: 0.8rem;
+  white-space: pre-wrap;
   flex-grow: 1;
-  overflow-y: auto;
 }
 
-/* --- PUNKTID JA NUPUD --- */
+/* FOTO JA SKOORID */
+.photo-box { background: white; padding: 5px; border: 1px solid #bbb; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); text-align: center; }
+.photo-box img { width: 100%; aspect-ratio: 4/3; object-fit: cover; filter: sepia(0.5) contrast(1.1); }
+.photo-caption { font-size: 0.6rem; color: #555; }
+
+.stat-box { background: rgba(0,0,0,0.03); border: 1px dashed #777; padding: 10px; flex-grow: 1; overflow-y: auto; }
+.section-title { font-weight: bold; text-transform: uppercase; border-bottom: 1px solid black; margin-bottom: 5px; font-size: 0.75rem; color: black;}
+
+/* NUPUD JA FOOTER */
 .btn-confirm-heavy {
   background: var(--red);
   color: white;
   border: none;
-  padding: 15px;
+  padding: 12px;
   font-weight: bold;
-  cursor: pointer;
   text-transform: uppercase;
-  margin-top: auto;
+  cursor: pointer;
+  margin-top: 15px;
+  font-family: inherit;
 }
 
+.report-footer { margin-top: auto; border-top: 1px solid black; text-align: center; font-size: 0.6rem; color: #444; padding-top: 5px; }
+
+/* COMAND PANEL (TOP) */
+.command-panel { position: fixed; top: 0; width: 100%; background: rgba(10, 10, 10, 0.95); padding: 5px; z-index: 500; border-bottom: 1px solid #333; }
+.nav-btn-group { display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; }
+.btn-end-mission { background: #300; color: white; border: 1px solid var(--red); cursor: pointer; }
+
+/* MOBIILI PULT */
+#player-controller { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; }
+.mobile-header { background: #111; padding: 15px; text-align: center; border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: bold; font-size: 0.9rem;}
+#remote-vote-btns { padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.vote-btn { background: #1a1a1a; border: 1px solid var(--accent); color: var(--accent); padding: 18px; font-size: 1.1rem; font-family: monospace; text-transform: uppercase; }
+.voted-msg { color: var(--accent); text-align: center; margin-top: 50px; font-size: 1.3rem; }
+
+/* EFEKTID */
 .blink-text { animation: blink 1.5s infinite; color: var(--accent); }
 @keyframes blink { 50% { opacity: 0.2; } }
-
-/* --- SCREEN ADAPTATION --- */
-@media (max-width: 800px) {
-  #folder.folder-open { width: 95vw; height: 80vh; }
-  .paper-page { flex-direction: column; overflow-y: auto; }
-  .photo-box { display: none; } /* Peidame pildi mobiilis hostides, et tekst mahuks */
-}
