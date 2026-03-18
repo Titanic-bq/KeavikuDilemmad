@@ -1,296 +1,215 @@
-/**
- * KAEVIKUDRAAMA - Mängumootor v1.1
- * Autor: Gemini (Adaptive AI Collaborator)
- */
-
 const Generator = {
-  usedWords: new Set(),
-  vocab: {
-    dilemmad: [
-      "kanda öisel rünnakul helendavat neoonvesti, et olla 'nähtav juht'",
-      "süüa rühmavanema silme all ära tema viimane ja ainus soe toidupakk",
-      "kaotada oma relva lukk täpselt 5 minutit enne suurt inspekteerimist",
-      "veeta terve talvise õppuse kummikutes, kuhu rühmakaaslane 'kogemata' kuses",
-      "tassida üksi tagasi kogu rühma varustus, olles ise ainus 'ellujääja'",
-      "puhastada hambaharjaga välikäimlat, kuni teised lähevad linnaloale",
-      "magada kaevikus, mis on poolenisti täitunud lörtsi ja kaaslaste pisaratega",
-      "teatada rühmale, et sinu näpovea tõttu tühistati kõigi puhkused",
-      "kaevata endale kaevik paekivisse, kasutades ainult plastikust lusikat",
-      "asendada oma relva salv banaaniga ja loota, et keegi ei märka",
-    ],
-    asjad: [
-      "sinu kuulivest on täidetud vana ajalehepaberiga",
-      "sinu ainus soojusallikas on märg tikk ja lootusetus",
-      "sinu salvedes on paukpadrunite asemel tühjad kestad",
-      "sinu automaat on nii roostes, et see on nüüd ametlikult külmrelv",
-      "toidupakis on ainult üks kuivanud küpsis ja kiri 'Edu, sõdur!'",
-      "sinu märgades sokkides on arenenud uus ja agressiivne tsivilisatsioon",
-      "sinu kiiver kukub silmadele iga kord, kui sa proovid sihtida",
-    ],
-    tegu_r: [
-      "astuks miini peale isegi siis, kui see on lipukestega tähistatud",
-      "hakkaks rünnaku ajal vaenlasega linnaloa tingimuste üle kauplema",
-      "viskaks granaadi asemel oma käekella ja jätaks splindi kätte",
-      "jääks magama täpselt sel hetkel, kui rühmavanem küsib: 'Kes valvab?'",
-      "hakkaks kaevikus lõket tegema, kasutades kütuseks rühma ainsat kaarti",
-      "laseks kogemata puruks rühma viimase ellujäämispaki",
-      "kaotaks öise häire ajal püksid ja jookseks rünnakule aluspesus",
-      "müüks rühma asukoha maha ühe sooja burgeri ja külma joogi eest",
-    ],
-    missioon: [
-      "Vallutada tagasi üksuse välikäimla",
-      "Hävitada vaenlase kütuseauto, kasutades ainult kive",
-      "Toimetada salajane armastuskiri läbi rindejoone",
-      "Peatada pealetungiv tankikolonn tühja rinnaga",
-      "Evakueerida haavatud rühmavanem, kes kaalub 120 kilo",
-      "Kaitsta rühma viimast ja ainsat kohvivaru",
-      "Hävitada vaenlase raadiomast ilma tööriistadeta",
-    ],
-    kriis: [
-      "kogu üksus on 48 tundi magamata ja näeb hallutsinatsioone",
-      "laskemoon on asendatud kuivatatud hernestega",
-      "vaenlane kasutab ründamiseks näljaseid pesukarusid",
-      "teie asukoht reedeti helendavate saabaste tõttu",
-      "side on maas ja rühmavanem nutab looteasendis",
-      "olete ümber piiratud ja teil on jäänud ainult üks suitsupomm",
-    ],
-    vahend: [
-      "rull teipi ja poolik märg küpsis",
-      "üksainus depressiivne ja treenitud orav",
-      "kakskümmend liitrit hapuks läinud piima",
-      "vana megafon ja nimekiri rühmavanema solvangutest",
-      "katkine sandaal ja pakk aegunud närimiskummi",
-      "papist tankimudelid ja liigselt enesekindlust",
-    ],
-  },
-  images: [
-    "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500",
-    "https://images.unsplash.com/photo-1599408162165-8b111666e191?w=500",
-    "https://images.unsplash.com/photo-1595438662299-5d7540450b3d?w=500",
-  ],
+    usedWords: new Set(),
+    vocab: {
+        dilemmad: ["kanda öisel rünnakul helendavat neoonvesti", "süüa rühmavanema viimane soe toidupakk", "kaotada relva lukk enne inspekteerimist", "veetma õppus kummikutes, kuhu rühmakaaslane kuses", "puhastada hambaharjaga välikäimlat"],
+        asjad: ["kuulivest on täidetud ajalehega", "ainus soojusallikas on märg tikk", "salvedes on tühjad kestad", "kiiver kukub silmadele", "märgades sokkides on arenenud tsivilisatsioon"],
+        tegu_r: ["astuks miini peale", "hakkaks rünnaku ajal linnaloa üle kauplema", "viskaks granaadi asemel käekella", "jääks magama kui rühmavanem küsib: kes valvab?", "müüks asukoha burgeri eest"],
+        missioon: ["Vallutada välikäimla", "Hävitada kütuseauto", "Kaitsta kohvivaru", "Evakueerida 120kg rühmavanem"],
+        kriis: ["üksus on 48h magamata", "laskemoon on herned", "side on maas", "vaenlane kasutab ründamiseks pesukarusid"],
+        vahend: ["rull teipi ja märg küpsis", "depressiivne orav", "papist tankimudelid", "vana megafon"]
+    },
+    // Pildid erinevateks etappideks
+    uiImages: {
+        start: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800", // Avavaade
+        game: [
+            "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500", 
+            "https://images.unsplash.com/photo-1599408162165-8b111666e191?w=500"
+        ],
+        end: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800" // Lõpuvaade
+    }
 };
 
-let DB = {
-  dilemmad: { cards: [] },
-  ryhmavaim: { cards: [] },
-  strateegia: { cards: [] },
-};
-
-let players = [];
-let scores = {};
-let gameMode = "locked";
+let DB = { dilemmad: { cards: [] }, ryhmavaim: { cards: [] }, strateegia: { cards: [] } };
+let players = []; 
+let scores = {}; 
+let gameMode = "locked"; 
 let currentTheme = "dilemmad";
 let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
+let votesThisRound = 0; // Jälgib jooksva raundi hääli
 const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
-/**
- * Valib unikaalse sõna sõnastikust. Kui sõnad otsas, tühjendab ajaloo.
- */
-function getUniqueRand(key) {
-  const list = Generator.vocab[key];
-  if (!list) return "ERROR";
+// --- ABIFUNKTSIOONID ---
 
-  let available = list.filter((word) => !Generator.usedWords.has(word));
-
-  if (available.length === 0) {
-    list.forEach((word) => Generator.usedWords.delete(word));
-    available = list;
-  }
-
-  const picked = available[Math.floor(Math.random() * available.length)];
-  Generator.usedWords.add(picked);
-  return picked;
+function getRand(key) {
+    const list = Generator.vocab[key];
+    return list[Math.floor(Math.random() * list.length)];
 }
 
-/**
- * Genereerib kõik kaardid sessiooni alguses.
- */
-function generateSessionCards() {
-  Generator.usedWords.clear();
-  themeOrder.forEach((theme) => {
-    DB[theme].cards = [];
-    for (let i = 0; i < 20; i++) {
-      let q = "";
-      if (theme === "dilemmad") {
-        q = `KAS SA EELISTAKSID PIGEM:\n> ${getUniqueRand("dilemmad")}\n\nVÕI SEDA, ET:\n> ${getUniqueRand("asjad")}?`;
-      } else if (theme === "ryhmavaim") {
-        q = `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${getUniqueRand("tegu_r")}?`;
-      } else {
-        q = `MISSIOON: ${getUniqueRand("missioon")}\nKRIIS: ${getUniqueRand("kriis")}\n\nABI: ${getUniqueRand("vahend")}`;
-      }
-
-      DB[theme].cards.push({
-        q: q,
-        img: Generator.images[
-          Math.floor(Math.random() * Generator.images.length)
-        ],
-      });
-    }
-  });
+function playSnd(id) { 
+    const a = document.getElementById(id); 
+    if (a) { a.currentTime = 0; a.play().catch(() => {}); } 
 }
 
-/**
- * Mängija lisamine
- */
+// --- MÄNGU SEADISTAMINE ---
+
 function addPlayer() {
-  const input = document.getElementById("player-name");
-  if (!input) return;
-
-  const name = input.value.trim().toUpperCase();
-  if (name && players.length < 10 && !players.includes(name)) {
-    players.push(name);
-    scores[name] = 0;
-    input.value = "";
-    updatePlayerUI();
-    playSnd("snd-click");
-  }
+    const input = document.getElementById("player-name");
+    const name = input.value.trim().toUpperCase();
+    if (name && players.length < 10 && !players.includes(name)) {
+        players.push(name); 
+        scores[name] = 0; 
+        input.value = "";
+        updatePlayerUI();
+        playSnd("snd-click");
+    }
 }
 
 function updatePlayerUI() {
-  const list = document.getElementById("player-list");
-  if (list) {
-    list.innerHTML = players
-      .map((p) => `<span class="player-tag">${p}</span>`)
-      .join("");
-  }
-  const startBtn = document.getElementById("start-btn");
-  if (startBtn) {
-    startBtn.style.display = players.length >= 2 ? "inline-block" : "none";
-  }
+    document.getElementById("player-list").innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
+    document.getElementById("start-btn").style.display = players.length >= 2 ? "inline-block" : "none";
 }
 
-/**
- * Mängu käivitamine
- */
+function generateSessionCards() {
+    themeOrder.forEach(theme => {
+        DB[theme].cards = [];
+        for (let i = 0; i < 20; i++) {
+            let q = theme === "dilemmad" ? `EELISTAKSID PIGEM:\n> ${getRand("dilemmad")}\n\nVÕI SEDA, ET:\n> ${getRand("asjad")}?` :
+                    theme === "ryhmavaim" ? `KES TEIE HULGAST TÕENÄOLISEMALT:\n> ${getRand("tegu_r")}?` :
+                    `MISSIOON: ${getRand("missioon")}\nKRIIS: ${getRand("kriis")}\n\nABI: ${getRand("vahend")}`;
+            
+            // Valime mängu piltide hulgast
+            DB[theme].cards.push({ q, img: Generator.uiImages.game[i % Generator.uiImages.game.length] });
+        }
+    });
+}
+
 function startGame() {
-  generateSessionCards();
-  const modeInput = document.querySelector('input[name="game-mode"]:checked');
-  gameMode = modeInput ? modeInput.value : "locked";
-
-  playSnd("snd-click");
-  document.getElementById("home-screen").style.display = "none";
-  document.getElementById("game-interface").style.display = "block";
-
-  setupPhase("dilemmad");
-  updateScoreDisplay();
-  updateVoteButtons();
+    if (players.length < 2) return;
+    generateSessionCards();
+    const modeInput = document.querySelector('input[name="game-mode"]:checked');
+    gameMode = modeInput ? modeInput.value : "locked";
+    
+    document.getElementById("home-screen").style.display = "none";
+    document.getElementById("game-interface").style.display = "block";
+    
+    setupPhase("dilemmad");
+    updateScoreDisplay();
+    playSnd("snd-click");
 }
+
+// --- MÄNGU KULG ---
 
 function setupPhase(key) {
-  currentTheme = key;
-  const phaseTitle = document.getElementById("current-phase-name");
-  if (phaseTitle) phaseTitle.innerText = key.toUpperCase();
-
-  document.querySelectorAll(".nav-toggle").forEach((b) => {
-    b.classList.remove("active");
-    b.style.pointerEvents = gameMode === "locked" ? "none" : "auto";
-  });
-
-  const activeBtn = document.getElementById("btn-" + key);
-  if (activeBtn) activeBtn.classList.add("active");
-
-  renderCard();
-}
-
-function changePhaseManual(key) {
-  if (gameMode === "free") {
-    playSnd("snd-click");
-    setupPhase(key);
-  }
+    currentTheme = key;
+    document.getElementById("current-phase-name").innerText = key.toUpperCase();
+    
+    document.querySelectorAll(".nav-toggle").forEach(b => {
+        b.classList.remove("active");
+        b.style.pointerEvents = gameMode === "locked" ? "none" : "auto";
+    });
+    
+    const activeBtn = document.getElementById("btn-" + key);
+    if (activeBtn) activeBtn.classList.add('active');
+    
+    renderCard();
 }
 
 function renderCard() {
-  const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
-  if (card) {
+    votesThisRound = 0; // Lähtesta hääled uue kaardi puhul
+    const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
+    
     document.getElementById("task-text").innerText = card.q;
     document.getElementById("task-img").src = card.img;
-    document.getElementById("card-num").innerText = (
-      phaseCounters[currentTheme] + 1
-    )
-      .toString()
-      .padStart(2, "0");
-  }
-}
-
-/**
- * Kausta avamise animatsioon
- */
-function openFolder() {
-  const f = document.getElementById("folder");
-  if (f && f.classList.contains("folder-closed")) {
-    playSnd("snd-folder");
-    f.classList.replace("folder-closed", "folder-open");
-  }
-}
-
-/**
- * Punktisüsteem
- */
-function givePoint(player) {
-  if (scores.hasOwnProperty(player)) {
-    scores[player]++;
-    playSnd("snd-click");
-    updateScoreDisplay();
-  }
-}
-
-function updateScoreDisplay() {
-  const container = document.getElementById("score-display");
-  if (container) {
-    container.innerHTML = players
-      .map(
-        (p) =>
-          `<div class="score-row"><span>${p}</span><span class="player-score-value">${scores[p]} PTS</span></div>`,
-      )
-      .join("");
-  }
+    document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
+    
+    updateVoteButtons(); 
 }
 
 function updateVoteButtons() {
-  const container = document.getElementById("vote-btns-container");
-  if (container) {
-    container.innerHTML = players
-      .map(
-        (p) =>
-          `<button class="vote-btn" onclick="givePoint('${p}')">${p}</button>`,
-      )
-      .join("");
-  }
+    const container = document.getElementById("vote-btns-container");
+    container.innerHTML = `
+        <div style="margin-bottom: 8px; font-size: 0.75rem; color: #888; font-family: monospace;">
+            HÄÄLI JÄÄNUD: <span id="votes-countdown">${players.length - votesThisRound}</span>
+        </div>
+        ${players.map(p => `<button class="vote-btn" onclick="givePoint('${p}')">${p}</button>`).join("")}
+    `;
 }
 
-/**
- * Audio kontroll
- */
-function playSnd(id) {
-  const a = document.getElementById(id);
-  if (a) {
-    a.currentTime = 0;
-    a.play().catch(() => {}); // Väldib vigu brauserites, mis blokivad autoplyad
-  }
+function givePoint(p) {
+    // Kontrolli, kas hääli on veel alles
+    if (votesThisRound < players.length) {
+        if (scores.hasOwnProperty(p)) {
+            scores[p]++;
+            votesThisRound++;
+            playSnd("snd-click");
+            
+            updateScoreDisplay();
+            
+            // Uuenda loendurit ekraanil
+            const countdown = document.getElementById("votes-countdown");
+            if (countdown) countdown.innerText = players.length - votesThisRound;
+
+            // Kui kõik on hääletanud, lukusta nupud
+            if (votesThisRound >= players.length) {
+                document.querySelectorAll(".vote-btn").forEach(btn => {
+                    btn.style.opacity = "0.3";
+                    btn.style.pointerEvents = "none";
+                });
+            }
+        }
+    }
 }
 
-/**
- * Järgmise kaardi loogika
- */
+function updateScoreDisplay() {
+    document.getElementById("score-display").innerHTML = players
+        .map(p => `<div class="score-row"><span>${p}</span><span>${scores[p]} PTS</span></div>`)
+        .join("");
+}
+
 function nextCard(e) {
-  if (e) e.stopPropagation();
-  playSnd("snd-paper");
-
-  if (gameMode === "locked") {
-    // Liigub automaatselt järgmisesse faasi
-    let nextIdx = (themeOrder.indexOf(currentTheme) + 1) % themeOrder.length;
-    phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
-
-    const f = document.getElementById("folder");
-    f.classList.replace("folder-open", "folder-closed");
-
-    setTimeout(() => {
-      setupPhase(themeOrder[nextIdx]);
-      f.classList.replace("folder-closed", "folder-open");
-    }, 600);
-  } else {
-    // Püsib samas faasis, lihtsalt järgmine kaart
-    phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
-    renderCard();
-  }
+    if (e) e.stopPropagation();
+    playSnd("snd-paper");
+    
+    if (gameMode === "locked") {
+        let nextIdx = (themeOrder.indexOf(currentTheme) + 1) % 3;
+        phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
+        
+        const f = document.getElementById("folder");
+        f.classList.replace("folder-open", "folder-closed");
+        
+        setTimeout(() => { 
+            setupPhase(themeOrder[nextIdx]); 
+            f.classList.replace("folder-closed", "folder-open"); 
+        }, 600);
+    } else {
+        phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
+        renderCard();
+    }
 }
+
+function openFolder() {
+    const f = document.getElementById("folder");
+    if (f.classList.contains("folder-closed")) { 
+        playSnd("snd-folder"); 
+        f.classList.replace("folder-closed", "folder-open"); 
+    }
+}
+
+function changePhaseManual(key) { 
+    if (gameMode === "free") { 
+        playSnd("snd-click"); 
+        setupPhase(key); 
+    } 
+}
+
+function endGame() {
+    playSnd("snd-click");
+    document.getElementById("game-interface").style.display = "none";
+    document.getElementById("debrief-screen").style.display = "flex";
+    
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    
+    document.getElementById("winner-announcement").innerHTML = `
+        <h2>PARIM ANALÜÜTIK:</h2>
+        <span class="winner-name">${sorted[0][0]}</span>
+    `;
+    
+    document.getElementById("final-leaderboard").innerHTML = sorted
+        .map(p => `<div class="final-row"><span>${p[0]}</span><span>${p[1]} PTS</span></div>`)
+        .join("");
+}
+
+// Kuulajad
+document.getElementById("player-name").addEventListener("keypress", (e) => { 
+    if (e.key === "Enter") addPlayer(); 
+});

@@ -1,26 +1,45 @@
 :root {
-  --army-green: #2d3419;
   --accent: #00ff41;
   --red: #8b0000;
   --paper: #dcd0b9;
   --folder-base: #5d4a37;
-  --panel-gray: #151715;
 }
 
-/* ÜLDINE RESET */
-* {
-  box-sizing: border-box;
-}
 body {
   margin: 0;
-  background: #050505;
+  background: #000;
   color: white;
   font-family: "Courier New", monospace;
   overflow: hidden;
   height: 100vh;
 }
 
-/* CRT & SCANLINES */
+/* TAUSTADE HALDUS */
+.global-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  filter: brightness(0.4) sepia(0.3);
+}
+.global-bg.active {
+  opacity: 1;
+}
+
+#bg-home {
+  background-image: url("Brief.webp");
+}
+#bg-game {
+  background-image: url("war.jpg");
+}
+#bg-final {
+  background-image: url("lopupilt.jpg");
+}
+
+/* CRT EFEKTID */
 .crt-overlay {
   position: fixed;
   inset: 0;
@@ -49,178 +68,87 @@ body {
 }
 @keyframes scan {
   from {
-    top: 0;
+    top: -100px;
   }
   to {
     top: 100%;
   }
 }
 
-/* KOMPAKTNE HOTBAR */
-.command-panel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: var(--panel-gray);
-  border-bottom: 2px solid #333;
-  padding: 4px 0;
-  z-index: 500;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-}
-.panel-label {
-  font-size: 0.5rem;
-  color: #444;
-  letter-spacing: 2px;
-  margin-bottom: 2px;
-}
-.nav-btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.nav-toggle {
-  background: #1a1c1a;
-  border: 1px solid #444;
-  color: #666;
-  padding: 4px 12px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.2s;
-}
-.nav-toggle .indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #300;
-}
-.nav-toggle.active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.nav-toggle.active .indicator {
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-  animation: blink 1.5s infinite;
-}
-
-/* TAUSTAD */
-.trench-bg {
-  position: absolute;
-  inset: 0;
-  background: url("image_2b9884.jpg") center/cover no-repeat;
-  filter: brightness(0.15) sepia(0.4);
-  z-index: -1;
-}
-
-/* HOME SCREEN */
+/* UI */
 .home-ui {
   position: absolute;
-  top: 55%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.95);
-  padding: 30px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 40px;
   border: 1px solid #333;
   text-align: center;
-  width: 90%;
-  max-width: 500px;
-  z-index: 100;
-}
-.top-secret-bar {
-  font-size: 0.6rem;
-  color: var(--red);
-  letter-spacing: 2px;
-  margin-bottom: 10px;
+  width: 450px;
 }
 h1 {
   font-size: 2.5rem;
-  margin: 10px 0;
-  line-height: 0.9;
   color: var(--accent);
+  margin-bottom: 20px;
 }
-
-/* INPUTID JA NUPUD */
-.input-group {
+.command-panel {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(20, 20, 20, 0.9);
+  padding: 10px;
+  z-index: 500;
+  border-bottom: 2px solid #333;
+}
+.nav-btn-group {
   display: flex;
-  gap: 5px;
-  margin-bottom: 15px;
+  justify-content: center;
+  gap: 10px;
 }
-input {
+.nav-toggle {
   background: #111;
   border: 1px solid #444;
-  color: var(--accent);
-  padding: 10px;
-  flex-grow: 1;
-  font-family: inherit;
-}
-.btn-military-add {
-  background: #2d3419;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  color: #666;
+  padding: 5px 15px;
   cursor: pointer;
+}
+.nav-toggle.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn-end-mission {
+  background: #400;
+  border: 1px solid #a00;
+  color: #ff9999;
+  padding: 5px 15px;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.btn-massive {
-  background: var(--accent);
-  color: #000;
-  border: none;
-  padding: 15px;
-  width: 100%;
-  font-size: 1.2rem;
-  font-weight: 900;
   cursor: pointer;
-  margin-top: 15px;
-}
-.player-tag {
-  background: rgba(0, 255, 65, 0.1);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 4px 10px;
-  margin: 3px;
-  display: inline-block;
-  font-size: 0.8rem;
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
 }
 
-/* TABLETOP & RESPONSIIVNE DOKUMENT */
+/* KAUSTAD */
 .tabletop {
   height: 100vh;
-  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   perspective: 2000px;
-  padding-top: 60px; /* Ruumi hotbarile */
 }
-
-#folder {
-  width: 40vw;
-  height: 80vh;
-  max-width: 450px;
-  max-height: 700px;
+#folder,
+#final-folder {
+  width: 400px;
+  height: 550px;
   position: relative;
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.8s;
   transform-style: preserve-3d;
   cursor: pointer;
 }
-
-#folder.folder-open {
-  width: 85vw;
-  max-width: 1000px;
+#folder.folder-open,
+#final-folder.folder-open {
+  width: 850px;
   cursor: default;
 }
 
-/* KAUSTA VÄLIMUS */
 .folder-front {
   position: absolute;
   inset: 0;
@@ -233,249 +161,154 @@ input {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 15px 15px 50px rgba(0, 0, 0, 0.8);
+  box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
 }
-#folder.folder-open .folder-front {
-  transform: rotateY(-145deg);
-}
-
-.folder-tab {
-  position: absolute;
-  top: -20px;
-  left: 0;
-  background: var(--folder-base);
-  padding: 5px 20px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  clip-path: polygon(0 0, 85% 0, 100% 100%, 0% 100%);
-}
-
-/* PABERI SISU */
-.folder-inside {
-  position: absolute;
-  inset: 5px;
-  background: #3d3024;
-  z-index: 1;
-  display: none;
-}
-#folder.folder-open .folder-inside {
-  display: block;
+.folder-open .folder-front {
+  transform: rotateY(-140deg);
 }
 
 .paper-page {
   background: var(--paper);
-  background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
   height: 100%;
   width: 100%;
-  padding: 3vh 3vw;
-  color: #2a2a2a;
+  padding: 30px;
+  color: #1a1a1a;
   position: relative;
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.1);
-  border-left: 15px solid #c4b59d;
+  border-left: 10px solid #c4b59d;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
-
 .page-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 20px;
   height: 100%;
 }
 
-/* DOKUMENDI DEKO */
-.confidential-watermark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  font-size: clamp(2rem, 8vw, 5rem);
-  color: rgba(139, 0, 0, 0.04);
-  font-weight: 900;
-  pointer-events: none;
-  border: 8px solid rgba(139, 0, 0, 0.04);
-  padding: 10px;
-  white-space: nowrap;
-}
-.paper-coffee-stain {
-  position: absolute;
-  top: 2%;
-  right: 5%;
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(
-    circle,
-    rgba(101, 67, 33, 0.08) 0%,
-    transparent 70%
-  );
-  border-radius: 50%;
-  pointer-events: none;
-}
-.metal-clip {
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 15px;
-  background: linear-gradient(90deg, #666, #999, #666);
-  border-radius: 2px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* TEKSTIALA */
-.report-meta {
-  font-size: 0.65rem;
-  color: #555;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-.barcode {
-  font-size: 1rem;
-  letter-spacing: -1px;
-}
-
 .question-area {
-  flex-grow: 1;
-  min-height: 0;
-  font-size: clamp(0.85rem, 1.6vh, 1.1rem);
+  font-size: 1.1rem;
   font-weight: bold;
-  border-left: 3px solid #1a1a1a;
-  padding-left: 12px;
-  display: flex;
-  align-items: center;
-  line-height: 1.4;
-  white-space: pre-line;
-  margin: 10px 0;
-  overflow-y: auto;
-}
-
-/* VOTING & BUTTONS */
-.voting-zone {
-  margin-bottom: 10px;
-}
-.small-label {
-  font-size: 0.6rem;
-  font-weight: 900;
-  margin-bottom: 5px;
-  opacity: 0.7;
+  margin: 20px 0;
+  min-height: 150px;
+  border-left: 3px solid #000;
+  padding-left: 15px;
 }
 .vote-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid #1a1a1a;
-  padding: 4px 8px;
-  font-family: inherit;
-  font-weight: bold;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #000;
+  padding: 5px;
   margin: 2px;
-  font-size: 0.75rem;
-}
-.vote-btn:hover {
-  background: #1a1a1a;
-  color: var(--paper);
-}
-
-.btn-confirm-heavy {
-  width: 100%;
-  padding: 2px;
-  background: #111;
-  border: 1px solid #444;
   cursor: pointer;
-  margin-top: auto;
-}
-.btn-inner {
-  display: block;
-  background: linear-gradient(180deg, #8b0000 0%, #5a0000 100%);
-  color: white;
-  padding: 10px;
-  font-weight: 900;
-  font-size: 0.8rem;
-  border: 1px solid #a00;
-}
-
-/* PAREM POOL: FOTO JA STATS */
-.content-right {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  font-family: inherit;
 }
 .photo-box {
-  position: relative;
   width: 100%;
   aspect-ratio: 4/3;
-  background: #eee;
-  border: 4px solid #fff;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  background: #ddd;
+  border: 5px solid #fff;
 }
 .photo-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: sepia(0.3) contrast(1.1);
-}
-.tape-piece {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 20px;
-  background: rgba(211, 194, 151, 0.4);
 }
 
-.stat-box {
-  flex-grow: 1;
-  background: rgba(0, 0, 0, 0.03);
+.btn-confirm-heavy {
+  width: 100%;
+  background: #000;
+  padding: 2px;
+  border: none;
+  cursor: pointer;
+}
+.btn-inner {
+  display: block;
+  background: var(--red);
+  color: #fff;
   padding: 10px;
-  border: 1px dashed #999;
-  font-size: 0.75rem;
-  overflow-y: auto;
+  font-weight: bold;
 }
-.stat-header {
+.confidential-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 4rem;
+  opacity: 0.05;
   font-weight: 900;
-  text-decoration: underline;
-  margin-bottom: 8px;
-  font-size: 0.7rem;
-}
-.score-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 3px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* ANIMATSIOONID */
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
+  pointer-events: none;
 }
 .blink-text {
   animation: blink 2s infinite;
-  font-weight: bold;
-  font-size: 0.8rem;
   color: var(--accent);
+  font-weight: bold;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
 }
 
-/* MOBIILI KOHANDUS */
-@media (max-width: 768px) {
-  #folder.folder-open {
-    width: 95vw;
-    height: 85vh;
-  }
-  .page-grid {
-    grid-template-columns: 1fr;
-  }
-  .content-right {
-    display: none;
-  } /* Peidame pildi mobiilis, et tekst mahuks ära */
-  .question-area {
-    font-size: 0.9rem;
-  }
+.report-content {
+  color: #1a1a1a;
+  text-align: left;
+}
+.final-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dotted #999;
+  padding: 5px 0;
+}
+/* --- LÕPUEKRAANI PARANDUS --- */
+
+#debrief-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none; /* JS muudab selle flex-iks */
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.4); /* Valikuline: mahendab tausta üleminekut */
+}
+
+/* Tagame, et debrief-screeni sees olev tabletop oleks täismõõdus */
+#debrief-screen .tabletop {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Lõpukausta spetsiifiline sisu seadistus */
+.report-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.winner-name {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 10px 0;
+    border-left: 5px solid var(--red);
+    padding-left: 15px;
+}
+
+.final-stats-box {
+    margin: 20px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Kohandus väiksematele ekraanidele, et kaust ära mahuks */
+@media (max-height: 700px) {
+    #folder, #final-folder {
+        transform: scale(0.8);
+    }
 }
