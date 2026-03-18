@@ -1,6 +1,5 @@
-// --- 1. FIREBASE CONFIG (ASENDA SEE OMA KOODIGA!) ---
-
- const firebaseConfig = {
+// --- 1. FIREBASE CONFIG ---
+const firebaseConfig = {
     apiKey: "AIzaSyAXGJ5lGVFCKa0JO6ga6KuOy51xPbMdzlY",
     authDomain: "kaevikudilemmad.firebaseapp.com",
     databaseURL: "https://kaevikudilemmad-default-rtdb.europe-west1.firebasedatabase.app",
@@ -9,9 +8,13 @@
     messagingSenderId: "292604369801",
     appId: "1:292604369801:web:425c7d17c97843ddbb5f58",
     measurementId: "G-BWS6MQSYNK"
-  };
-  firebase.initializeApp(firebaseConfig);
+};
+
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+// SEE RIDA OLI PUUDU:
+const roomRef = firebase.ref(db, 'session_active'); 
+
 // --- 2. GENERATOR JA ANDMED ---
 const Generator = {
     vocab: {
