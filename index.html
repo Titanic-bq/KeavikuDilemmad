@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAEVIKUDILEMMAD ONLINE</title>
+    <title>KAEVIKUDILEMMAD V2</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div id="bg-home" class="global-bg active"></div>
+    <div class="scanline"></div>
 
     <section id="home-screen">
         <div class="home-ui">
-            <div class="top-secret-bar">CLASSIFIED // KV-734</div>
+            <div class="top-secret-bar">CLASSIFIED // KV-073</div>
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             <div class="btn-row">
@@ -29,38 +29,46 @@
 
     <section id="player-controller" style="display:none;">
         <div class="mobile-header">
-            <div id="controller-status">OOTA KÜSIMUST...</div>
+            <div id="controller-status">OOTA KÄSKLUSI...</div>
         </div>
         <div id="remote-vote-btns"></div>
     </section>
 
     <main id="game-interface" style="display:none">
+        <nav class="command-panel">
+            <div class="nav-btn-group">
+                <div id="current-phase-display" class="blink-text">FAAS: DILEMMAD</div>
+                <button onclick="endGame()" class="btn-end-mission">LÕPETA MISSIOON</button>
+            </div>
+        </nav>
+
         <div class="tabletop">
             <div id="folder" class="folder-closed" onclick="openFolder()">
                 <div class="folder-front">
-                    <div class="folder-tab">FILE_073</div>
+                    <div class="folder-tab">FILE_CONFIDENTIAL</div>
                     <div class="folder-cover-content">
                         <div class="stamp-red">TOP SECRET</div>
-                        <h2>OPERATSIOON:<br>DILEMMAD</h2>
-                        <p class="blink-text">[ KLIKI AVAMISEKS ]</p>
+                        <h2 id="folder-title">OPERATSIOON:<br>DILEMMAD</h2>
+                        <p class="blink-text">[ VAJUTA AVAMISEKS ]</p>
                     </div>
                 </div>
+
                 <div class="folder-inside">
                     <div class="paper-page">
                         <div class="confidential-watermark">CONFIDENTIAL</div>
                         <div class="page-layout">
                             <div class="content-left">
                                 <div class="report-header">
-                                    <div class="header-top"><span>REPORT #<span id="card-num">01</span></span></div>
-                                    <h1>DILEMMA ANALÜÜS</h1>
+                                    <div class="header-top"><span>OPERATIONAL REPORT</span><span>#<span id="card-num">01</span></span></div>
+                                    <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                                 </div>
                                 <div class="question-area"><p id="task-text">Valmistun...</p></div>
-                                <button class="btn-confirm-heavy" onclick="nextCard()">JÄRGMINE RAPORT</button>
+                                <button class="btn-confirm-heavy" onclick="nextCard()">KINNITA / JÄRGMINE</button>
                             </div>
                             <div class="content-right">
                                 <div class="photo-box">
                                     <img id="task-img" src="">
-                                    <div class="photo-caption">FOTO_ID: <span id="card-num-2">01</span></div>
+                                    <div class="photo-caption">VISUAL_REF_0<span id="card-num-2">1</span></div>
                                 </div>
                                 <div class="stat-box">
                                     <div class="section-title">ÜKSUSE SKOORID</div>
