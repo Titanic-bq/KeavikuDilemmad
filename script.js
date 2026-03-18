@@ -36,7 +36,7 @@ function hostGame() {
     isHost = true;
     gamePin = Math.floor(1000 + Math.random() * 9000).toString();
     roomRef = db.ref('rooms/' + gamePin);
-    roomRef.set({ status: "waiting", currentQ: "VALMISTUN..." }).then(() => {
+    roomRef.set({ status: "waiting", currentQ: "VALMISTUN...", phaseIndex: 0 }).then(() => {
         document.getElementById("status-msg").innerHTML = `PIN: <span class="blink-text" style="color:#0f4; font-size:2rem;">${gamePin}</span>`;
         document.getElementById("start-btn").style.display = "block";
         listenForData();
@@ -45,88 +45,114 @@ function hostGame() {
 
 function joinGame() {
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("SÕDUR, NIMI!");
-    let inputPin = prompt("SISESTA PIN:");
+    if (!myName) return alert("NIMI!");
+    let inputPin = prompt("PIN:");
     if (!inputPin) return;
     db.ref('rooms/' + inputPin).once('value', (snap) => {
         if (snap.exists()) {
             gamePin = inputPin; roomRef = db.ref('rooms/' + gamePin);
             roomRef.child('players/' + myName).set({ score: 0 });
-            document.getElementById("home-screen").style.display = "none";
-            document.getElementById("player-controller").style.display = "flex";
             listenForData();
         } else alert("VALE PIN!");
     });
 }
 
 function listenForData() {
-    roomRef.child('players').on('value', (snap) => {
-        scores = snap.val() || {}; players = Object.keys(scores);
-        updateScoreDisplay();
-        const lobby = document.getElementById("player-list");
-        if(lobby) lobby.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
-        if (!isHost && !hasVotedThisRound) renderButtons();
-    });
+    roomRef.on('value', (snap) => {
+        const data = snap.val();
+        if (!data) return;
 
-    roomRef.child('currentQ').on('value', (snap) => {
-        if (!isHost && snap.val()) {
-            hasVotedThisRound = false;
-            document.getElementById("controller-status").innerText = snap.val();
-            renderButtons();
-        }
-    });
+        scores = data.players || {};
+        players = Object.keys(scores);
+        phaseIndex = data.phaseIndex || 0;
 
-    roomRef.child('status').on('value', (snap) => {
-        if (snap.val() === "started" && isHost) {
+        // Vaadete sünkroonimine
+        if (data.status === "started") {
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
+            if (isHost) document.getElementById("host-next-btn").style.display = "block";
         }
+
+        if (data.status === "ended") {
+            showEndScreen();
+        }
+
+        // Sisu uuendamine (Sama pilt ja tekst kõigile!)
+        if (data.currentQ) {
+            document.getElementById("task-text").innerText = data.currentQ;
+            document.getElementById("task-img").src = data.currentImg || "";
+            document.getElementById("card-num").innerText = (phaseIndex + 1).toString().padStart(2, "0");
+            
+            const currentPhase = phases[phaseIndex];
+            document.getElementById("page-title").innerText = currentPhase + " RAPORT";
+            
+            // Hotbari sünkro
+            document.querySelectorAll(".phase-step").forEach((el, idx) => {
+                el.classList.toggle("active", idx === phaseIndex);
+            });
+
+            if (!isHost) renderButtons();
+        }
+        updateScoreDisplay();
     });
 }
 
 function startGame() {
-    phaseIndex = 0;
-    roomRef.update({ status: "started" });
-    renderCurrentPhase();
-}
-
-function renderCurrentPhase() {
-    const currentPhase = phases[phaseIndex];
-    document.querySelectorAll(".phase-step").forEach((el, idx) => {
-        el.classList.toggle("active", idx === phaseIndex);
+    const q = generateQuestion("DILEMMAD");
+    const img = Generator.images[0];
+    roomRef.update({ 
+        status: "started", 
+        currentQ: q, 
+        currentImg: img,
+        phaseIndex: 0 
     });
-
-    document.getElementById("folder-title").innerHTML = "MISSIOON:<br>" + currentPhase;
-    document.getElementById("page-title").innerText = currentPhase + " RAPORT";
-
-    let q = "";
-    if (phaseIndex === 0) {
-        q = `KAS EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?`;
-    } else if (phaseIndex === 1) {
-        q = `KES TEIE HULGAST:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
-    } else {
-        q = `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
-    }
-
-    document.getElementById("task-text").innerText = q;
-    document.getElementById("task-img").src = Generator.images[phaseIndex % Generator.images.length];
-    document.getElementById("card-num").innerText = (phaseIndex + 1).toString().padStart(2, "0");
-    document.getElementById("card-num-2").innerText = (phaseIndex + 1);
-    
-    if (isHost) roomRef.update({ currentQ: q });
-
-    const nextBtn = document.querySelector(".metal-btn-large");
-    nextBtn.innerText = (phaseIndex < 2) ? "JÄRGMINE ETAPP >>" : "VAATA LÕPPRAPORTIT";
 }
 
 function nextCard() {
     if (phaseIndex < 2) {
         phaseIndex++;
-        document.getElementById("folder").classList.replace("folder-open", "folder-closed");
-        setTimeout(renderCurrentPhase, 400);
+        const currentPhase = phases[phaseIndex];
+        const q = generateQuestion(currentPhase);
+        const img = Generator.images[phaseIndex % Generator.images.length];
+        
+        roomRef.update({
+            currentQ: q,
+            currentImg: img,
+            phaseIndex: phaseIndex
+        });
     } else {
-        showEndScreen();
+        roomRef.update({ status: "ended" });
     }
+}
+
+function generateQuestion(p) {
+    if (p === "DILEMMAD") return `KAS EELISTAKSID:\n> ${Generator.vocab.dilemmad[Math.floor(Math.random()*5)]}\n\nVÕI:\n> ${Generator.vocab.asjad[Math.floor(Math.random()*5)]}?`;
+    if (p === "RÜHMAVAIM") return `KES TEIE HULGAST KÕIGE TÕENÄOLISEMALT:\n> ${Generator.vocab.ryhmavaim[Math.floor(Math.random()*5)]}?`;
+    return `MISSIOON: ${Generator.vocab.missioon[Math.floor(Math.random()*4)]}\nKRIIS: ${Generator.vocab.kriis[Math.floor(Math.random()*4)]}`;
+}
+
+function renderButtons() {
+    const container = document.getElementById("remote-vote-btns");
+    if (hasVotedThisRound) {
+        container.innerHTML = "<div class='voted-msg'>VALIK TEHTUD</div>";
+        return;
+    }
+    container.innerHTML = players.filter(p => p !== myName).map(p => 
+        `<button class="vote-btn-metal" onclick="vote('${p}')">SÕDUR ${p}</button>`
+    ).join("");
+}
+
+function vote(target) {
+    hasVotedThisRound = true;
+    roomRef.child('players/' + target + '/score').transaction(s => (s || 0) + 1);
+    renderButtons();
+}
+
+function updateScoreDisplay() {
+    const display = document.getElementById("score-display");
+    if (!display) return;
+    display.innerHTML = Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;font-size:0.7rem;color:#000;padding:2px 0;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
 }
 
 function showEndScreen() {
@@ -135,41 +161,10 @@ function showEndScreen() {
     const sorted = Object.entries(scores).sort((a,b) => b[1].score - a[1].score);
     if (sorted.length > 0) {
         document.getElementById("winner-box").innerHTML = `
-            <h2 style="color:#bc0000; font-size: 2rem;">VÕITJA: ${sorted[0][0]}</h2>
-            <h3>SKOOR: ${sorted[0][1].score} PUNKTI</h3>
+            <h2 style="color:#bc0000; font-size: 1.8rem;">VÕITJA: ${sorted[0][0]}</h2>
+            <p>TULEMUS: ${sorted[0][1].score} PUNKTI</p>
         `;
     }
-    document.getElementById("final-stats").innerHTML = sorted.map(p => `<div>${p[0]}: ${p[1].score} pts</div>`).join("");
 }
 
-function renderButtons() {
-    const container = document.getElementById("remote-vote-btns");
-    if (!container || hasVotedThisRound) return;
-    
-    // Filtreerime välja enda nime ja tekitame nupud
-    if (players.length <= 1) {
-        container.innerHTML = "<div style='color:#666; text-align:center;'>OOTAME TEISI SÕDUREID...</div>";
-        return;
-    }
-
-    container.innerHTML = players.filter(p => p !== myName).map(p => 
-        `<button class="vote-btn-metal" onclick="vote('${p}')">SÕDUR: ${p}</button>`
-    ).join("");
-}
-
-
-function vote(target) {
-    hasVotedThisRound = true;
-    roomRef.child('players/' + target + '/score').transaction(s => (s || 0) + 1);
-    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>VALIK SAADETUD</div>";
-}
-
-function updateScoreDisplay() {
-    const display = document.getElementById("score-display");
-    if (!display) return;
-    display.innerHTML = Object.entries(scores).sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #999;font-size:0.8rem;color:#000;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
-}
-
-function openFolder() { document.getElementById("folder").classList.replace("folder-closed", "folder-open"); }
-function endGame() { if(confirm("ABORT MISSION?")) location.reload(); }
+function endGame() { if(confirm("ABORT?")) location.reload(); }

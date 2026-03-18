@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAEVIKUDILEMMAD V3</title>
+    <title>KAEVIKUDILEMMAD V3 - OPERATIONAL</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div class="scanline"></div>
 
     <section id="home-screen">
         <div class="home-ui-metal">
@@ -18,20 +17,13 @@
             <h1>KAEVIKU<br>DILEMMAD</h1>
             <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             <div class="btn-row">
-                <button onclick="hostGame()" class="metal-btn">LOO TUBA</button>
+                <button onclick="hostGame()" class="metal-btn">LOO TOBA</button>
                 <button onclick="joinGame()" class="metal-btn">LIITU</button>
             </div>
             <div id="status-msg"></div>
             <div id="player-list"></div>
             <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red blink-text">ALUSTA OPERATSIOONI</button>
         </div>
-    </section>
-
-    <section id="player-controller" style="display:none;">
-        <div class="mobile-header">
-            <div id="controller-status">OOTA KÄSKLUSI...</div>
-        </div>
-        <div id="remote-vote-btns"></div>
     </section>
 
     <main id="game-interface" style="display:none">
@@ -43,58 +35,51 @@
                 <div class="phase-sep">>></div>
                 <div class="phase-step" id="p2">STRATEEGIA</div>
             </div>
-            <button onclick="endGame()" class="btn-abort">ABORT MISSION</button>
+            <button onclick="endGame()" class="btn-abort">ABORT</button>
         </nav>
 
         <div class="tabletop">
-            <div id="folder" class="folder-closed" onclick="openFolder()">
-                <div class="folder-front">
-                    <div class="folder-tab">KV-073</div>
-                    <div class="folder-cover-content">
-                        <div class="stamp-red">TOP SECRET</div>
-                        <h2 id="folder-title">MISSIOON:<br>DILEMMAD</h2>
-                        <p class="blink-text">[ AVA TOIMIK ]</p>
-                    </div>
-                </div>
-
-                <div class="folder-inside">
-                    <div class="paper-page">
-                        <div class="confidential-watermark">CONFIDENTIAL</div>
-                        
-                        <div id="game-content" class="page-layout">
-                            <div class="content-left">
-                                <div class="report-header">
-                                    <div class="header-top"><span>REPORT #<span id="card-num">01</span></span><span>CLASS: DELTA</span></div>
-                                    <h1 id="page-title">DILEMMA ANALÜÜS</h1>
-                                </div>
-                                <div class="question-area"><p id="task-text">Sünkroniseerin...</p></div>
-                                <button class="metal-btn-large" onclick="nextCard()">JÄRGMINE ETAPP >></button>
+            <div id="folder" class="folder-open">
+                <div class="paper-page">
+                    <div class="confidential-watermark">CONFIDENTIAL</div>
+                    
+                    <div id="game-content" class="page-layout">
+                        <div class="content-left">
+                            <div class="report-header">
+                                <div class="header-top"><span>REPORT #<span id="card-num">01</span></span><span>CLASS: DELTA</span></div>
+                                <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                             </div>
-                            <div class="content-right">
-                                <div class="photo-box">
-                                    <img id="task-img" src="">
-                                    <div class="photo-caption">VISUAL_REF_0<span id="card-num-2">1</span></div>
-                                </div>
-                                <div class="stat-box">
-                                    <div class="section-title">ÜKSUSE SKOORID</div>
-                                    <div id="score-display"></div>
-                                </div>
+                            <div class="question-area"><p id="task-text">OOTAN KÄSKLUSI...</p></div>
+                            
+                            <div id="action-area">
+                                <button id="host-next-btn" class="metal-btn-large" onclick="nextCard()" style="display:none;">JÄRGMINE ETAPP >></button>
+                                <div id="remote-vote-btns"></div>
                             </div>
                         </div>
 
-                        <div id="end-screen-content" style="display:none; text-align:center; width:100%;">
-                            <div class="stamp-final">MISSION ACCOMPLISHED</div>
-                            <div id="winner-box"></div>
-                            <div id="final-stats"></div>
-                            <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">SULGE TOIMIK</button>
+                        <div class="content-right">
+                            <div class="photo-box">
+                                <img id="task-img" src="">
+                            </div>
+                            <div class="stat-box">
+                                <div class="section-title">SKOORID</div>
+                                <div id="score-display"></div>
+                            </div>
                         </div>
-
-                        <div class="report-footer">AUTH: RÜHMAVANEM // KAEVIKUD-V3</div>
                     </div>
+
+                    <div id="end-screen-content" style="display:none; text-align:center;">
+                        <div class="stamp-final">MISSION ACCOMPLISHED</div>
+                        <div id="winner-box"></div>
+                        <button onclick="location.reload()" class="metal-btn">SULGE TOIMIK</button>
+                    </div>
+
+                    <div class="report-footer">AUTH: RÜHMAVANEM // KAEVIKUD-V3</div>
                 </div>
             </div>
         </div>
     </main>
+
     <script src="script.js"></script>
 </body>
 </html>
