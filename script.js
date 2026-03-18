@@ -1,3 +1,4 @@
+// --- 1. FIREBASE CONFIG ---
 const firebaseConfig = {
     apiKey: "AIzaSyAXGJ5lGVFCKa0JO6ga6KuOy51xPbMdzlY",
     authDomain: "kaevikudilemmad.firebaseapp.com",
@@ -11,16 +12,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const roomRef = db.ref('session_active');
 
+// --- 2. MUUTUJAD ---
 let isHost = false;
 let myName = "";
+let gamePin = ""; 
+let roomRef = null;
 let players = [];
 let scores = {};
 let hasVotedThisRound = false;
-let currentTheme = "dilemmad";
-let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
-const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
 const Generator = {
     vocab: {
@@ -34,49 +34,71 @@ const Generator = {
     images: ["https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500"]
 };
 
+let currentTheme = "dilemmad";
+let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
 let DB = { dilemmad: { cards: [] }, ryhmavaim: { cards: [] }, strateegia: { cards: [] } };
+const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
+// --- 3. KAHOOT-STYLE JOIN & HOST ---
 function hostGame() {
     isHost = true;
-    myName = document.getElementById("player-name").value.trim().toUpperCase() || "HOST";
-    roomRef.remove().then(() => {
-        document.getElementById("status-msg").innerText = "HOST AKTIVEERITUD. OOTA ÜKSUST...";
-        document.getElementById("start-btn").style.display = "inline-block";
-        listenForData();
-    });
+    gamePin = Math.floor(1000 + Math.random() * 9000).toString(); // Genereerib 4-kohalise PIN-i
+    myName = "HOST";
+    
+    roomRef = db.ref('rooms/' + gamePin);
+    roomRef.remove(); // Puhastame vana toa kui see eksisteeris
+
+    document.getElementById("status-msg").innerHTML = `MÄNGU PIN: <span style="font-size:2rem; color:#0f4;">${gamePin}</span>`;
+    document.getElementById("start-btn").style.display = "inline-block";
+    
+    listenForData();
 }
 
 function joinGame() {
     isHost = false;
     myName = document.getElementById("player-name").value.trim().toUpperCase();
-    if (!myName) return alert("Sisesta nimi!");
-    db.ref('session_active/players/' + myName).set({ score: 0 });
-    document.getElementById("home-screen").style.display = "none";
-    document.getElementById("player-controller").style.display = "block";
-    listenForData();
+    let inputPin = prompt("SISESTA MÄNGU PIN-KOOD:"); // Küsime PIN-i Kahooti stiilis
+    
+    if (!myName || !inputPin) return alert("Nimi ja PIN on kohustuslikud!");
+    
+    gamePin = inputPin;
+    roomRef = db.ref('rooms/' + gamePin);
+
+    // Kontrollime kas tuba on olemas
+    roomRef.once('value', (snap) => {
+        if (!snap.exists()) return alert("VALE PIN-KOOD!");
+
+        roomRef.child('players/' + myName).set({ score: 0 });
+        document.getElementById("home-screen").style.display = "none";
+        document.getElementById("player-controller").style.display = "block";
+        listenForData();
+    });
 }
 
+// --- 4. SÜNKROONIMINE ---
 function listenForData() {
-    db.ref('session_active/players').on('value', (snap) => {
+    roomRef.child('players').on('value', (snap) => {
         const data = snap.val() || {};
         players = Object.keys(data);
         scores = data;
         
+        // Lobby nimekiri hosti ekraanil
         const lobbyList = document.getElementById("player-list");
         if(lobbyList) lobbyList.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
+        
         updateScoreDisplay();
         if (!isHost && !hasVotedThisRound) renderRemoteButtons();
     });
 
-    db.ref('session_active/currentQ').on('value', (snap) => {
+    roomRef.child('currentQ').on('value', (snap) => {
         if (!isHost && snap.val()) {
-            hasVotedThisRound = false; 
+            hasVotedThisRound = false;
             document.getElementById("controller-status").innerText = snap.val();
             renderRemoteButtons();
         }
     });
 
-    db.ref('session_active/status').on('value', (snap) => {
+    roomRef.child('status').on('value', (snap) => {
         if (snap.val() === "started" && isHost) {
             document.getElementById("home-screen").style.display = "none";
             document.getElementById("game-interface").style.display = "block";
@@ -85,6 +107,7 @@ function listenForData() {
     });
 }
 
+// --- 5. MÄNGU LOOGIKA ---
 function startGame() {
     generateSessionCards();
     roomRef.update({ status: "started" });
@@ -94,7 +117,7 @@ function startGame() {
 function generateSessionCards() {
     themeOrder.forEach(theme => {
         DB[theme].cards = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
             let q = theme === "dilemmad" ? `EELISTAKSID:\n> ${getRand("dilemmad")}\n\nVÕI:\n> ${getRand("asjad")}?` :
                     theme === "ryhmavaim" ? `KES TEIE HULGAST:\n> ${getRand("tegu_r")}?` :
                     `MISSIOON: ${getRand("missioon")}\nKRIIS: ${getRand("kriis")}`;
@@ -112,7 +135,7 @@ function renderCard() {
     const card = DB[currentTheme].cards[phaseCounters[currentTheme]];
     document.getElementById("task-text").innerText = card.q;
     document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
-    if (isHost) db.ref('session_active/currentQ').set(card.q);
+    if (isHost) roomRef.update({ currentQ: card.q });
 }
 
 function renderRemoteButtons() {
@@ -126,8 +149,8 @@ function renderRemoteButtons() {
 function givePointOnline(target) {
     if (hasVotedThisRound) return;
     hasVotedThisRound = true;
-    db.ref('session_active/players/' + target + '/score').transaction(s => (s || 0) + 1);
-    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>HÄÄL SALVESTATUD!</div>";
+    roomRef.child('players/' + target + '/score').transaction(s => (s || 0) + 1);
+    document.getElementById("remote-vote-btns").innerHTML = "<div class='voted-msg'>HÄÄL ANTUD!</div>";
 }
 
 function updateScoreDisplay() {
@@ -135,18 +158,20 @@ function updateScoreDisplay() {
     if (!display) return;
     display.innerHTML = Object.entries(scores)
         .sort((a,b) => b[1].score - a[1].score)
-        .map(p => `<div>${p[0]}: ${p[1].score}</div>`).join("");
+        .map(p => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #555;padding:5px 0;"><span>${p[0]}</span><span>${p[1].score} PTS</span></div>`).join("");
 }
 
 function nextCard() {
-    phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 10;
+    phaseCounters[currentTheme] = (phaseCounters[currentTheme] + 1) % 20;
     setupPhase(themeOrder[(themeOrder.indexOf(currentTheme) + 1) % 3]);
-    document.getElementById("folder").classList.replace("folder-open", "folder-closed");
+    const f = document.getElementById("folder");
+    f.classList.replace("folder-open", "folder-closed");
 }
 
-function openFolder() { document.getElementById("folder").classList.replace("folder-closed", "folder-open"); }
+function openFolder() { 
+    document.getElementById("folder").classList.replace("folder-closed", "folder-open"); 
+}
+
 function getRand(k) { return Generator.vocab[k][Math.floor(Math.random() * Generator.vocab[k].length)]; }
 
-function endGame() { 
-    roomRef.update({ status: "ended" }); 
-}
+function endGame() { roomRef.update({ status: "ended" }); }
