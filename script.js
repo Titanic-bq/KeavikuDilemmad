@@ -145,10 +145,18 @@ function showEndScreen() {
 function renderButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container || hasVotedThisRound) return;
+    
+    // Filtreerime välja enda nime ja tekitame nupud
+    if (players.length <= 1) {
+        container.innerHTML = "<div style='color:#666; text-align:center;'>OOTAME TEISI SÕDUREID...</div>";
+        return;
+    }
+
     container.innerHTML = players.filter(p => p !== myName).map(p => 
-        `<button class="vote-btn-metal" onclick="vote('${p}')">${p}</button>`
+        `<button class="vote-btn-metal" onclick="vote('${p}')">SÕDUR: ${p}</button>`
     ).join("");
 }
+
 
 function vote(target) {
     hasVotedThisRound = true;

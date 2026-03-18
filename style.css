@@ -64,3 +64,90 @@ h1 { font-size: 2.5rem; margin-bottom: 20px; line-height: 0.9; }
 .question-area { background: rgba(0,0,0,0.05); border: 1px solid #999; padding: 15px; font-weight: bold; min-height: 120px; white-space: pre-wrap; }
 .photo-box img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border: 4px solid #fff; }
 .stat-box { border: 1px dashed #777; padding: 10px; flex-grow: 1; overflow-y: auto; }
+/* MOBIILI DISAIN - DIGITAALNE VÄLIARVUTI */
+#player-controller {
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    display: none; /* Skript lülitab sisse */
+    flex-direction: column;
+    padding: 20px;
+    z-index: 9999;
+    border: 10px solid #1a1a1a; /* Ekraani raam */
+    box-sizing: border-box;
+}
+
+.mobile-header {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#controller-status {
+    color: var(--accent);
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--accent);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 68, 0.05);
+    border: 1px solid rgba(0, 255, 68, 0.2);
+    padding: 10px;
+}
+
+#remote-vote-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+/* NUPUD TELEFONIS */
+.vote-btn-metal {
+    background: linear-gradient(145deg, #222, #050505);
+    border: 2px solid #444;
+    color: #888;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #000;
+    transition: all 0.1s;
+}
+
+.vote-btn-metal:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #000;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.voted-msg {
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.5rem;
+    border: 2px dashed var(--accent);
+    padding: 40px 20px;
+    animation: blink 1s infinite;
+}
+
+/* Teeme CRT efekti ka mobiilis nähtavaks */
+#player-controller::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
