@@ -35,6 +35,18 @@ const Generator = {
     images: ["https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500", "https://images.unsplash.com/photo-1599408162165-8b111666e191?w=500", "https://images.unsplash.com/photo-1579546671585-7844a13a969a?w=500"]
 };
 
+// --- UUS OSA: JUHENDI FUNKTSIOONID ---
+function openManual() {
+    document.getElementById("home-screen").style.display = "none";
+    document.getElementById("manual-screen").style.display = "flex";
+}
+
+function closeManual() {
+    document.getElementById("manual-screen").style.display = "none";
+    document.getElementById("home-screen").style.display = "flex";
+}
+// --- JUHENDI OSA LÕPP ---
+
 function hostGame() {
     isHost = true;
     myName = "HOST"; // Host on ka mängija

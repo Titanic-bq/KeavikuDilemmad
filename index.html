@@ -10,10 +10,13 @@
 </head>
 <body>
     <div class="crt-overlay"></div>
-    <div class="noise-bg"></div> <section id="home-screen">
-        <div class="war-zone-bg"></div> <div class="home-ui-metal">
+    <div class="noise-bg"></div>
+
+    <section id="home-screen">
+        <div class="war-zone-bg"></div>
+        <div class="home-ui-metal">
             <div class="top-secret-bar">CLASSIFIED // SECTION 7</div>
-            <h1 class="glitch-text" data-text="KAEVIKUDILEMMAD">KAEVIKU<br>DILEMMAD</h1>
+            <h1 class="glitch-text">KAEVIKU<br>DILEMMAD</h1>
             
             <div class="input-target-wrapper">
                 <span class="target-corner tl"></span>
@@ -23,13 +26,32 @@
                 <input type="text" id="player-name" placeholder="IDENTIFITSEERI SÕDUR..." maxlength="12">
             </div>
 
-            <div class="btn-row">
-                <button onclick="hostGame()" class="metal-btn">LOO TUBA</button>
-                <button onclick="joinGame()" class="metal-btn">LIITU</button>
+            <div class="btn-row" style="display: flex; gap: 5px;">
+                <button onclick="hostGame()" class="metal-btn" style="flex: 2;">LOO TUBA</button>
+                <button onclick="joinGame()" class="metal-btn" style="flex: 2;">LIITU</button>
+                <button onclick="openManual()" class="metal-btn btn-help" style="flex: 0.5;">?</button>
             </div>
+
             <div id="status-msg"></div>
             <div id="player-list"></div>
             <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red blink-text">ALUSTA OPERATSIOONI</button>
+        </div>
+    </section>
+
+    <section id="manual-screen" style="display:none;">
+        <div class="tabletop">
+            <div class="paper-page manual-page">
+                <div class="confidential-watermark">JUHEND</div>
+                <h2 style="text-align: center; color: var(--red); margin-top: 0;">OPERATIIVJUHEND</h2>
+                <hr>
+                <div class="manual-content" style="color: #000; font-size: 0.9rem; text-align: left;">
+                    <p><strong>1. ETTEVALMISTUS:</strong> Sisesta koodnimi. <strong>HOST</strong> loob toa (peab olema suurel ekraanil), <strong>LIITU</strong> lisab sind üksusesse.</p>
+                    <p><strong>2. MÄNGU KÄIK:</strong> Läbite kolm faasi: DILEMMAD, RÜHMAVAIM ja STRATEEGIA. Iga küsimus nõuab kiiret analüüsi.</p>
+                    <p><strong>3. HÄÄLETAMINE:</strong> Vali oma seadmes sõdur, kes vastusega kõige paremini sobib. Iga hääl on 1 punkt.</p>
+                    <p><strong>4. LÕPP:</strong> Host saab missiooni igal ajal lõpetada, misjärel selgub üksuse mõjukaim võitleja.</p>
+                </div>
+                <button class="metal-btn-large" onclick="closeManual()" style="background: var(--red); color: white; border: none; margin-top: 15px;">TAGASI</button>
+            </div>
         </div>
     </section>
 
@@ -48,8 +70,6 @@
         <div class="tabletop">
             <div id="folder" class="folder-open">
                 <div class="paper-page">
-                    <div class="confidential-watermark">CONFIDENTIAL</div>
-                    
                     <div id="game-content" class="page-layout">
                         <div class="content-left">
                             <div class="report-header">
@@ -57,18 +77,14 @@
                                 <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                             </div>
                             <div class="question-area"><p id="task-text">OOTAN KÄSKLUSI...</p></div>
-                            
                             <div id="action-area">
                                 <button id="host-next-btn" class="metal-btn-large" onclick="nextCard()" style="display:none;">JÄRGMINE KÜSIMUS >></button>
                                 <div id="remote-vote-btns"></div>
                             </div>
                         </div>
-
                         <div class="content-right" id="side-info">
                             <div class="photo-box"><img id="task-img" src=""></div>
-                            <div class="stat-box">
-                                <div id="score-display"></div>
-                            </div>
+                            <div class="stat-box"><div id="score-display"></div></div>
                         </div>
                     </div>
 
@@ -76,7 +92,7 @@
                         <div class="stamp-final">MISSION ACCOMPLISHED</div>
                         <div id="winner-box"></div>
                         <div id="war-quote" style="font-style: italic; color: #444; margin: 20px 0; border-top: 1px solid #999; padding-top: 10px;"></div>
-                        <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">TAGASI PEAMENÜÜSSE</button>
+                        <button onclick="location.reload()" class="metal-btn">TAGASI PEAMENÜÜSSE</button>
                     </div>
                 </div>
             </div>

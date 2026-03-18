@@ -106,3 +106,74 @@ h1 { font-size: 2.8rem; text-shadow: 0 0 10px var(--accent); margin-bottom: 30px
     .home-ui-metal { width: 90%; padding: 20px; }
     h1 { font-size: 2rem; }
 }
+/* --- JUHENDI EKRAANI JA NUPU TÄIENDUSED --- */
+
+/* Küsimärgi nupu spetsiifiline stiil */
+.btn-help { 
+    background: rgba(0, 255, 65, 0.1) !important; 
+    color: var(--accent) !important; 
+    border-color: var(--accent) !important; 
+    font-size: 1.2rem;
+}
+
+/* Juhendi ekraani konteiner */
+#manual-screen { 
+    position: fixed; 
+    inset: 0; 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 1000; /* Toome kõige ette */
+    background: rgba(0,0,0,0.8); /* Tumedam taust, et sisu eralduks */
+}
+
+/* Juhendi paberi stiil */
+.manual-page { 
+    max-width: 500px; 
+    height: auto !important; 
+    max-height: 85vh; 
+    border: 2px solid #333; 
+    box-shadow: 0 0 50px #000;
+    overflow-y: auto; /* Kui tekst on pikk, saab kerida */
+}
+
+/* Juhendi sisu tekst */
+.manual-content h3 {
+    color: var(--red);
+    font-size: 1rem;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #999;
+}
+
+.manual-content p {
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+/* Vesimärk juhendi taustal */
+.confidential-watermark { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%) rotate(-30deg); 
+    font-size: 5rem; 
+    color: rgba(139, 0, 0, 0.08); 
+    font-weight: 900; 
+    pointer-events: none; 
+    text-transform: uppercase; 
+    letter-spacing: 10px; 
+    z-index: 0; 
+}
+
+/* --- TÄIENDUSTE LÕPP --- */
+
+/* Sinu algne mobiili kohandus jääb siit edasi... */
+@media (max-width: 800px) {
+    #folder { width: 98vw; height: 94vh; }
+    .page-layout { flex-direction: column; overflow-y: auto; }
+    #side-info { display: none; }
+    .question-area { font-size: 1rem; padding: 10px; }
+    .home-ui-metal { width: 90%; padding: 20px; }
+    h1 { font-size: 2rem; }
+    .manual-page { width: 90vw; padding: 20px; }
+}
