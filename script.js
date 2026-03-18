@@ -10,14 +10,12 @@ const firebaseConfig = {
     measurementId: "G-BWS6MQSYNK"
 };
 
-// Algatame rakenduse
+// Algatame Firebase'i
 firebase.initializeApp(firebaseConfig);
-
-// PARANDUS 1: Õige süntaks on firebase.database().ref(), mitte firebase.ref()
 const db = firebase.database();
 const roomRef = db.ref('session_active'); 
 
-// PARANDUS 2: Muutujad peavad olema defineeritud ENNE funktsioone
+// --- 2. MÄNGU MUUTUJAD JA ANDMED ---
 let isHost = false;
 let myName = "";
 let players = []; 
@@ -26,7 +24,6 @@ let currentTheme = "dilemmad";
 let phaseCounters = { dilemmad: 0, ryhmavaim: 0, strateegia: 0 };
 const themeOrder = ["dilemmad", "ryhmavaim", "strateegia"];
 
-// --- 2. GENERATOR JA ANDMED ---
 const Generator = {
     vocab: {
         dilemmad: ["kanda neoonvesti rünnakul", "süüa rühmavanema toidupakk", "kaotada relva lukk", "kummikutesse kusemine", "välikäimla puhastamine hambaharjaga"],
@@ -44,7 +41,6 @@ const Generator = {
 
 let DB = { dilemmad: { cards: [] }, ryhmavaim: { cards: [] }, strateegia: { cards: [] } };
 
-// NÜÜD TULEVAD FUNKTSIOONID (hostGame, joinGame jne)...
 // --- 3. ONLINE LIITUMISE FUNKTSIOONID ---
 function hostGame() {
     isHost = true;
@@ -52,7 +48,7 @@ function hostGame() {
     document.getElementById("status-msg").innerText = "HOST REŽIIM: OOTAN ÜKSUST...";
     document.getElementById("start-btn").style.display = "inline-block";
     
-    roomRef.remove(); // Puhasta vana mäng
+    roomRef.remove(); // Puhastame vana sessiooni andmed
     listenForData();
 }
 
@@ -64,7 +60,7 @@ function joinGame() {
     document.getElementById("status-msg").innerText = "LIITUMINE...";
     
     // Lisa mängija andmebaasi
-    firebase.ref(db, 'session_active/players/' + myName).set({
+    db.ref('session_active/players/' + myName).set({
         score: 0
     });
 
@@ -76,40 +72,40 @@ function joinGame() {
 
 // --- 4. ANDMETE SÜNKROONIMINE ---
 function listenForData() {
-    // Kuula mängijaid ja skoore
-    firebase.ref(db, 'session_active/players').on('value', (snap) => {
+    // 1. Kuulame mängijaid ja skoore
+    db.ref('session_active/players').on('value', (snap) => {
         const data = snap.val() || {};
         players = Object.keys(data);
-        scores = data; // Firebase objekt sisaldab skoore
+        scores = data;
 
-        // Uuenda lobby nimekirja
+        // Uuendame ootesaali nimekirja (kui on id olemas)
         const lobbyList = document.getElementById("player-list");
-        if(lobbyList) lobbyList.innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join("");
+        if(lobbyList) lobbyList.innerHTML = players.map(p => `<span style="border:1px solid #0f4; padding:2px 8px; margin:4px; display:inline-block; font-size:0.75rem;">${p}</span>`).join("");
 
-        // Uuenda skoore ekraanil
         updateScoreDisplay();
 
-        // Kui on mängija, kuva hääletusnupud
+        // Kui on mängija telefonis, loome hääletusnupud
         if (!isHost) renderRemoteButtons();
     });
 
-    // Kuula mängu seisundit (kas host alustas mängu)
-    firebase.ref(db, 'session_active/status').on('value', (snap) => {
-        if (snap.val() === "started" && !isHost) {
-            document.getElementById("controller-status").innerText = "VALI SIHTMÄRK:";
+    // 2. Kuulame mängu staatust (kas HOST vajutas start)
+    db.ref('session_active/status').on('value', (snap) => {
+        const status = snap.val();
+        if (status === "started" && !isHost) {
+            document.getElementById("controller-status").innerText = "VALI, KES SEDA TEEKS:";
         }
-        if (snap.val() === "ended") location.reload();
+        if (status === "ended") location.reload();
     });
 
-    // Kuula küsimusi (et mängija näeks ka, mille üle hääletatakse)
-    firebase.ref(db, 'session_active/currentQ').on('value', (snap) => {
+    // 3. Kuulame jooksvat küsimust telefonis
+    db.ref('session_active/currentQ').on('value', (snap) => {
         if (!isHost && snap.val()) {
             document.getElementById("controller-status").innerText = snap.val();
         }
     });
 }
 
-// --- 5. MÄNGU JUHTIMINE ---
+// --- 5. MÄNGU JUHTIMINE (HOST) ---
 function startGame() {
     generateSessionCards();
     roomRef.update({ status: "started" });
@@ -127,35 +123,34 @@ function renderCard() {
     document.getElementById("task-img").src = card.img;
     document.getElementById("card-num").innerText = (phaseCounters[currentTheme] + 1).toString().padStart(2, "0");
     
-    // Saada küsimus andmebaasi, et mängijad näeksid seda telefonis
     if (isHost) {
-        firebase.ref(db, 'session_active/currentQ').set(card.q);
+        db.ref('session_active/currentQ').set(card.q);
     }
 }
 
-// --- 6. HÄÄLETAMINE ---
+// --- 6. HÄÄLETAMINE (MÄNGIJA TELEFONIS) ---
 function renderRemoteButtons() {
     const container = document.getElementById("remote-vote-btns");
     if (!container) return;
-    // Mängija ei saa hääletada iseenda poolt
+    
+    // Mängija ei hääleta enda poolt
     container.innerHTML = players
         .filter(p => p !== myName)
-        .map(p => `<button class="vote-btn" onclick="givePointOnline('${p}')">${p}</button>`)
+        .map(p => `<button class="vote-btn" style="width:100%; margin:5px 0;" onclick="givePointOnline('${p}')">${p}</button>`)
         .join("");
 }
 
 function givePointOnline(targetPlayer) {
-    // Kasutame Firebase Transactioni, et punktid kaduma ei läheks
-    firebase.ref(db, 'session_active/players/' + targetPlayer + '/score').transaction((currentScore) => {
+    db.ref('session_active/players/' + targetPlayer + '/score').transaction((currentScore) => {
         return (currentScore || 0) + 1;
     });
     
-    // Tagasiside mängijale
-    document.getElementById("remote-vote-btns").innerHTML = "<p style='color:var(--accent)'>HÄÄL SALVESTATUD!</p>";
+    // Visuaalne tagasiside telefonis
+    document.getElementById("remote-vote-btns").innerHTML = "<p style='color:#0f4'>HÄÄL SALVESTATUD!</p>";
     setTimeout(renderRemoteButtons, 2000);
 }
 
-// --- 7. ABIFUNKTSIOONID (Sinu originaalidest) ---
+// --- 7. ABIFUNKTSIOONID ---
 function generateSessionCards() {
     themeOrder.forEach(theme => {
         DB[theme].cards = [];
@@ -172,7 +167,8 @@ function getRand(key) { return Generator.vocab[key][Math.floor(Math.random() * G
 
 function setupPhase(key) {
     currentTheme = key;
-    document.getElementById("current-phase-name").innerText = "FAAS: " + key.toUpperCase();
+    const phaseName = document.getElementById("current-phase-name");
+    if(phaseName) phaseName.innerText = "FAAS: " + key.toUpperCase();
     renderCard();
 }
 
@@ -221,3 +217,10 @@ function openFinalFolder() {
     const f = document.getElementById("final-folder");
     if (f) f.classList.replace("folder-closed", "folder-open");
 }
+
+// Kuulame Enter-klahvi nime sisestamisel
+document.getElementById("player-name").addEventListener("keypress", (e) => { 
+    if (e.key === "Enter") {
+        if (isHost) hostGame(); else joinGame();
+    }
+});
