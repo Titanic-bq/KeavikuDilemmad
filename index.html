@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAEVIKUDILEMMAD V3 - OPERATIONAL</title>
+    <title>KAEVIKUDILEMMAD V3</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -22,7 +22,7 @@
             </div>
             <div id="status-msg"></div>
             <div id="player-list"></div>
-            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red blink-text">ALUSTA OPERATSIOONI</button>
+            <button id="start-btn" onclick="startGame()" style="display:none;" class="btn-massive-red">ALUSTA OPERATSIOONI</button>
         </div>
     </section>
 
@@ -35,34 +35,29 @@
                 <div class="phase-sep">>></div>
                 <div class="phase-step" id="p2">STRATEEGIA</div>
             </div>
-            <button onclick="endGame()" class="btn-abort">ABORT</button>
+            <button id="host-end-btn" onclick="terminateMission()" class="btn-abort" style="display:none;">LÕPETA MISSIOON</button>
         </nav>
 
         <div class="tabletop">
             <div id="folder" class="folder-open">
                 <div class="paper-page">
-                    <div class="confidential-watermark">CONFIDENTIAL</div>
-                    
                     <div id="game-content" class="page-layout">
                         <div class="content-left">
                             <div class="report-header">
-                                <div class="header-top"><span>REPORT #<span id="card-num">01</span></span><span>CLASS: DELTA</span></div>
+                                <div class="header-top"><span>REPORT #<span id="card-num">01</span></span></div>
                                 <h1 id="page-title">DILEMMA ANALÜÜS</h1>
                             </div>
                             <div class="question-area"><p id="task-text">OOTAN KÄSKLUSI...</p></div>
                             
                             <div id="action-area">
-                                <button id="host-next-btn" class="metal-btn-large" onclick="nextCard()" style="display:none;">JÄRGMINE ETAPP >></button>
+                                <button id="host-next-btn" class="metal-btn-large" onclick="nextCard()" style="display:none;">JÄRGMINE KÜSIMUS >></button>
                                 <div id="remote-vote-btns"></div>
                             </div>
                         </div>
 
-                        <div class="content-right">
-                            <div class="photo-box">
-                                <img id="task-img" src="">
-                            </div>
+                        <div class="content-right" id="side-info">
+                            <div class="photo-box"><img id="task-img" src=""></div>
                             <div class="stat-box">
-                                <div class="section-title">SKOORID</div>
                                 <div id="score-display"></div>
                             </div>
                         </div>
@@ -71,10 +66,9 @@
                     <div id="end-screen-content" style="display:none; text-align:center;">
                         <div class="stamp-final">MISSION ACCOMPLISHED</div>
                         <div id="winner-box"></div>
-                        <button onclick="location.reload()" class="metal-btn">SULGE TOIMIK</button>
+                        <div id="final-stats-list"></div>
+                        <button onclick="location.reload()" class="metal-btn" style="margin-top:20px;">TAGASI PEAMENÜÜSSE</button>
                     </div>
-
-                    <div class="report-footer">AUTH: RÜHMAVANEM // KAEVIKUD-V3</div>
                 </div>
             </div>
         </div>
